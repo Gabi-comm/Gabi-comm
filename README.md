@@ -99,6 +99,7 @@
     <img src="https://github-readme-streak-stats.herokuapp.com/?user=Gabi-comm&theme=tokyonight" alt="GitHub Streak" />
   </a>
 </p>
+"Add WakaTime placeholders"
 
 
 ---
