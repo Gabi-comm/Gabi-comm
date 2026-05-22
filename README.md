@@ -102,4 +102,4 @@
 
 ## 📊 Weekly Coding Breakdown
 
-Stats will load here shortly...
+<!--START_SECTION:waka-->Stats will load here shortly...<!--END_SECTION:waka-->
