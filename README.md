@@ -21,13 +21,7 @@
                               ⢀⣠⠁⠈⠀⠀⠀⠀⠀⠀
                                                      
                               ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   HELLO I'M GABRIEL JOHN U. SOLOMON⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-<p align="center">
-  Aspiring AI Engineer
-</p>
 
-<p align="center">
-  Focused on making AI production-ready, reliable, and ethical.
-</p>
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Gabi-comm/Gabi-comm/pacman-output/pacman-contribution-graph-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Gabi-comm/Gabi-comm/pacman-output/pacman-contribution-graph.svg">
