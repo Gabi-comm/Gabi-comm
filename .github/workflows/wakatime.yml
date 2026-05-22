@@ -1,0 +1,20 @@
+name: WakaTime Stats Update
+
+on:
+  schedule:
+    # Runs automatically every 12 hours
+    - cron: '0 */12 * * *'
+  # Allows you to manually trigger it anytime from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    name: Update WakaTime Stats
+    runs-on: ubuntu-latest
+    steps:
+      - uses: athul/waka-readme@master
+        with:
+          WAKATIME_API_KEY: ${{ secrets.waka_da262b82-2cf9-48da-8d72-26f11275e386 }}
+          SHOW_TITLE: false # Set to true if you want an automated "From WakaTime" title
+          SECTION_NAME: waka
+          BLOCKS: "█░" # This controls the look of the loading bar
