@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: athul/waka-readme@master
         with:
-          WAKATIME_API_KEY: ${{ secrets.waka_da262b82-2cf9-48da-8d72-26f11275e386 }}
+          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
           SHOW_TITLE: false # Set to true if you want an automated "From WakaTime" title
           SECTION_NAME: waka
           BLOCKS: "█░" # This controls the look of the loading bar
