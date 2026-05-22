@@ -16,6 +16,21 @@
   <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/Gabi-comm/Gabi-comm/pacman-output/pacman-contribution-graph.svg">
 </picture>
 
+<table align="center">
+  <tr>
+    <td valign="middle">
+    <a href="https://github.com/anuraghazra/github-readme-stats">
+    <img align="center" src="https://github-readme-stats.shion.dev/api?username=Gabi-comm&show_icons=true&theme=tokyonight&count_private=true" alt="Gabi-comm's GitHub stats" height="200"/>
+  </a>
+  </td>
+    <td valign="middle">
+     <a href="https://github.com/ DenverCoder1/github-readme-streak-stats">
+    <img src="https://github-readme-streak-stats.herokuapp.com/?user=Gabi-comm&theme=tokyonight" alt="GitHub Streak height="155"" />
+  </a>
+  </td>
+  </tr>
+</table>
+
 # Tech Stack
 
 ## Programming & Development
@@ -73,6 +88,7 @@
 </div>
 
 ## Productivity
+
 <div align='left'>
   <img src="https://img.shields.io/badge/Power%20BI-F2C811?logo=powerbi&logoColor=black&style=for-the-badge" height="30" alt="power bi logo" />
   <img width="2" />
@@ -83,25 +99,19 @@
   <img src="https://img.shields.io/badge/VS%20Code-007ACC?logo=visualstudiocode&logoColor=white&style=for-the-badge" height="30" alt="vscode logo" />
 </div>
 
-## My Global GitHub Analytics
-<p align="center">
-  <a href="https://github.com/anuraghazra/github-readme-stats">
-    <img align="center" src="https://github-readme-stats.shion.dev/api/top-langs/?username=Gabi-comm&layout=compact&theme=tokyonight" alt="Top Langs" />
+<table align="center">
+  <tr>
+    <td valign="middle">
+    <a href="https://github.com/anuraghazra/github-readme-stats">
+    <img align="center" src="https://github-readme-stats.shion.dev/api?username=Gabi-comm&show_icons=true&theme=tokyonight&count_private=true" alt="Gabi-comm's GitHub stats" height="200"/>
   </a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/anuraghazra/github-readme-stats">
-    <img align="center" src="https://github-readme-stats.shion.dev/api?username=Gabi-comm&show_icons=true&theme=tokyonight&count_private=true" alt="Gabi-comm's GitHub stats" />
+  </td>
+    <td valign="middle">
+     <a href="https://github.com/ DenverCoder1/github-readme-streak-stats">
+    <img src="https://github-readme-streak-stats.herokuapp.com/?user=Gabi-comm&theme=tokyonight" alt="GitHub Streak height="155"" />
   </a>
-</p>
-
-
-<p align="center">
-  <a href="https://github.com/ DenverCoder1/github-readme-streak-stats">
-    <img src="https://github-readme-streak-stats.herokuapp.com/?user=Gabi-comm&theme=tokyonight" alt="GitHub Streak" />
-  </a>
-</p>
-
+  </td>
+  </tr>
+</table>
 
 ---
