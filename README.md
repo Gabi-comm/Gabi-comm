@@ -102,4 +102,10 @@
 
 ## 📊 Weekly Coding Breakdown
 
-<!--START_SECTION:waka-->Stats will load here shortly...<!--END_SECTION:waka-->
+<!--START_SECTION:waka-->
+
+```txt
+No activity tracked
+```
+
+<!--END_SECTION:waka-->
