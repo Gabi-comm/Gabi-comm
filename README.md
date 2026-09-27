@@ -9,17 +9,3 @@
   <source media="(prefers-color-scheme: dark)" srcset="pacman_dark.svg">
   <img alt="Contribution graph: a pixel Pac-Man eats this year's GitHub contributions" src="pacman_light.svg">
 </picture>
-
-### ⏱ This week in code
-
-<!--START_SECTION:waka-->
-
-```txt
-From: 19 September 2026 - To: 26 September 2026
-
-Total Time: 0 secs
-
-No activity tracked
-```
-
-<!--END_SECTION:waka-->
