@@ -4,7 +4,8 @@ WakaTime-dashboard look: 1-bit dithered cells on tall rectangles, stat tiles
 with a dithered strip, tiny month labels. The year is a Pac-Man maze: walls sit
 in the gutters between days, Pac-Man path-finds to every day you contributed,
 your four biggest days are power pellets that turn the chasing ghosts
-frightened. Pure SVG + SMIL, so it animates inside a GitHub README <img>.
+frightened. Everyone spawns in a ghost house in the middle of the year;
+the four ghosts leave it one by one. Pure SVG + SMIL, so it animates inside a GitHub README <img>.
 
 Usage:
     python scripts/pacman_grid.py               # live data from your public profile
@@ -36,7 +37,10 @@ TILES_GAP = 24
 MONTH_H = 24
 SPEED = 90                 # Pac-Man, px per second
 PAUSE = 4.0                # s at the end before the loop restarts
-GHOST_LAG = (2.5, 4.5)     # s behind Pac-Man
+READY = 2.0                # s everyone sits in the ghost house before Pac-Man sets off
+GHOST_LAG = (2.0, 4.5, 7.0, 9.5)  # s each ghost trails Pac-Man; staggered release
+GHOST_FILLS = ("solid", "l3", "l2", "l1")
+HOUSE_W, HOUSE_H, HOUSE_ROW = 6, 3, 2  # ghost house: 6x3 days, rows 2-4, mid-year
 POWER_PELLETS = 4          # biggest days become power pellets
 FRIGHT = 6.0               # s the ghosts stay frightened
 WALL_CHANCE = 0.45         # share of gutters that try to become walls
@@ -157,13 +161,40 @@ def connected(graph: dict[tuple, set]) -> bool:
     return len(seen) == len(graph)
 
 
-def build_maze(graph: dict[tuple, set], rng: random.Random) -> set[frozenset]:
-    """Knock walls into gutters at random, never leaving a dead end or cutting the maze in two."""
+def ghost_house(weeks: list[list[dict]]) -> dict:
+    """A walled box mid-year with a two-cell door on top."""
+    c0 = len(weeks) // 2 - HOUSE_W // 2
+    cells = {(c0 + x, HOUSE_ROW + y) for x in range(HOUSE_W) for y in range(HOUSE_H)}
+    door_cols = (c0 + HOUSE_W // 2 - 1, c0 + HOUSE_W // 2)
+    doors = {frozenset(((c, HOUSE_ROW - 1), (c, HOUSE_ROW))) for c in door_cols}
+    mid = HOUSE_ROW + HOUSE_H // 2
+    return {
+        "cells": cells,
+        "doors": doors,
+        "start": (door_cols[0], mid),
+        "slots": [(c0, mid), (c0 + 1, mid), (c0 + HOUSE_W - 2, mid), (c0 + HOUSE_W - 1, mid)],
+    }
+
+
+def build_maze(graph: dict[tuple, set], rng: random.Random, house: dict) -> set[frozenset]:
+    """Knock walls into gutters at random, never leaving a dead end or cutting the maze in two.
+
+    The ghost house is fixed: walled all round except its door, open inside."""
+    walls = set()
+    inside = house["cells"]
+    for a in inside:
+        for b in list(graph[a]):
+            edge = frozenset((a, b))
+            if b not in inside and edge not in house["doors"]:
+                graph[a].discard(b)
+                graph[b].discard(a)
+                walls.add(edge)
     edges = sorted({frozenset((a, b)) for a in graph for b in graph[a]}, key=sorted)
     rng.shuffle(edges)
-    walls = set()
     for edge in edges:
         a, b = tuple(edge)
+        if a in inside or b in inside or edge in house["doors"]:
+            continue
         if rng.random() > WALL_CHANCE or len(graph[a]) <= 2 or len(graph[b]) <= 2:
             continue
         graph[a].discard(b)
@@ -259,10 +290,11 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
 
     # Maze, pellets, route.
     graph = grid_graph(weeks)
-    walls = build_maze(graph, random.Random(seed))
+    house = ghost_house(weeks)
+    walls = build_maze(graph, random.Random(seed), house)
     pellets = {n for n, d in by_node.items() if d["count"]}
     power = set(sorted(pellets, key=lambda n: (-by_node[n]["count"], n))[:POWER_PELLETS])
-    start = min(pellets or by_node)  # your oldest contribution day
+    start = house["start"]
     path = route(graph, start, pellets)
 
     pts = [centre(n) for n in path]
@@ -271,11 +303,10 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
         dist.append(dist[-1] + abs(x1 - x0) + abs(y1 - y0))
     length = max(dist[-1], 1.0)
     travel = length / SPEED
-    dur = travel + PAUSE
-    run = travel / dur
+    dur = READY + max(GHOST_LAG) + travel + PAUSE
     eaten_at = {}
     for n, d_ in zip(path, dist):
-        eaten_at.setdefault(n, d_ / length * travel)  # first visit, seconds
+        eaten_at.setdefault(n, READY + d_ / SPEED)  # first visit, seconds
 
     out = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
@@ -300,7 +331,8 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
     for n, d in sorted(by_node.items()):
         x, y = cell_xy(n)
         c = d["count"]
-        out.append(f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" fill="url(#l0)">'
+        floor = "none" if n in house["cells"] else "url(#l0)"
+        out.append(f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" fill="{floor}" pointer-events="all">'
                    f'<title>{d["date"]:%b %d}: {c} contribution{"s" * (c != 1)}</title></rect>')
 
     # Maze: outer frame plus a 2px wall in the gutter for every knocked-out edge.
@@ -316,6 +348,17 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
         else:              # stacked: horizontal bar
             bars.append(f'<rect x="{x - 2}" y="{y + CELL_H + 1}" width="{COL}" height="2"/>')
     out.append(f'<g fill="{wall}">{"".join(bars)}</g>')
+
+    # Ghost house door (a paler bar) and the READY! sign under the house.
+    door = "".join(f'<rect x="{cell_xy(min(e))[0] - 2}" y="{cell_xy(min(e))[1] + CELL_H + 1}" '
+                   f'width="{COL}" height="2"/>' for e in house["doors"])
+    out.append(f'<g fill="{ink}" opacity="0.55">{door}</g>')
+    hx = cell_xy(min(house["cells"]))[0] + HOUSE_W * COL // 2 - 2
+    hy = cell_xy(max(house["cells"]))[1] + ROW + CELL_H // 2 + 4
+    out.append(f'<text x="{hx}" y="{hy}" text-anchor="middle" font-size="12" font-weight="bold" '
+               f'fill="{accent}" opacity="0">READY!<animate attributeName="opacity" values="1;0" '
+               f'keyTimes="0;{READY / dur:.4f}" calcMode="discrete" dur="{dur:.2f}s" '
+               f'repeatCount="indefinite"/></text>')
 
     # Pellets vanish the moment Pac-Man reaches them.
     def eat(n: tuple) -> str:
@@ -346,33 +389,50 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
             out.append(f'<text x="{PAD + w * COL}" y="{grid_top + 7 * ROW + 12}" font-size="10" '
                        f'fill="{ink}" opacity="0.75">{month:%b}</text>')
 
-    path_d = "M" + " L".join(f"{x},{y}" for x, y in pts)
-    motion = (f'dur="{dur:.2f}s" repeatCount="indefinite" path="{path_d}" '
-              f'keyPoints="0;1;1" keyTimes="0;{run:.4f};1" calcMode="linear"')
+    loop = f'dur="{dur:.2f}s" repeatCount="indefinite"'
 
-    # Ghosts trail Pac-Man through the maze; power pellets frighten them.
+    def keys(times: list[float]) -> str:
+        return ";".join(f"{t / dur:.4f}" for t in times)
+
+    # Ghosts wait in the house (bobbing), leave one by one and trail Pac-Man
+    # through the maze; power pellets frighten them. Everyone resets each loop.
     fright = [(eaten_at[n], eaten_at[n] + FRIGHT) for n in sorted(power, key=eaten_at.get)]
     flash = [(e - 1.6 + k * 0.4, e - 1.4 + k * 0.4) for _, e in fright for k in range(4)]
-    for lag, pattern in zip(GHOST_LAG, ("l3", "l2")):
-        normal = discrete(fright, dur, "0", "1")
-        scared = discrete(fright, dur, "1", "0")
-        flashing = discrete(flash, dur, "0", "1")
-        anim = f'calcMode="discrete" dur="{dur:.2f}s" repeatCount="indefinite"'
+    anim = f'calcMode="discrete" {loop}'
+    sx, sy = pts[0]
+    for slot, lag, fill in zip(house["slots"], GHOST_LAG, GHOST_FILLS):
+        gx, gy = centre(slot)
+        exit_len = abs(gx - sx) + abs(gy - sy)
+        arrive = READY + lag                 # reaches Pac-Man's start `lag` s behind him
+        leave = arrive - exit_len / SPEED
+        total = exit_len + length
+        g_path = f"M{gx},{gy} L{sx},{sy} " + " ".join(f"L{x},{y}" for x, y in pts[1:])
+        bob_t = [k * 0.4 for k in range(int(leave / 0.4) + 1)] + [leave]
+        bob_v = ["0,0" if k % 2 == 0 else "0,-2" for k in range(len(bob_t) - 1)] + ["0,0"]
+        paint = ink if fill == "solid" else f"url(#{fill})"
         out.append(
-            f'<g opacity="0"><set attributeName="opacity" to="1" begin="{lag}s"/>'
-            f'<g>{pixel_art(GHOST, f"url(#{pattern})")}<animate attributeName="opacity" {normal} {anim}/></g>'
-            f'<g opacity="0">{pixel_art(GHOST_SCARED, wall)}<animate attributeName="opacity" {scared} {anim}/>'
-            f'<animate attributeName="fill-opacity" {flashing} {anim}/></g>'
-            f'<animateMotion {motion} begin="{lag}s"/></g>'
+            f'<g><animateMotion path="{g_path}" keyPoints="0;0;{exit_len / total:.4f};1;1" '
+            f'keyTimes="0;{keys([leave, arrive, arrive + travel])};1" calcMode="linear" {loop}/>'
+            f'<g><animateTransform attributeName="transform" type="translate" values="{";".join(bob_v)}" '
+            f'keyTimes="{keys(bob_t)}" {anim}/>'
+            f'<g>{pixel_art(GHOST, paint)}'
+            f'<animate attributeName="opacity" {discrete(fright, dur, "0", "1")} {anim}/></g>'
+            f'<g opacity="0">{pixel_art(GHOST_SCARED, wall)}'
+            f'<animate attributeName="opacity" {discrete(fright, dur, "1", "0")} {anim}/>'
+            f'<animate attributeName="fill-opacity" {discrete(flash, dur, "0", "1")} {anim}/></g>'
+            f'</g></g>'
         )
 
-    # Pac-Man: two frames swapping for the chomp; rotate="auto" faces travel.
+    # Pac-Man: READY in the house, then out through the door. Two frames swap
+    # for the chomp; rotate="auto" faces travel.
+    path_d = "M" + " L".join(f"{x},{y}" for x, y in pts)
     chomp = 'dur="0.36s" repeatCount="indefinite" calcMode="discrete"'
     out.append(
         f'<g>'
         f'<g>{pixel_art(PACMAN_OPEN, accent)}<animate attributeName="opacity" values="1;0" {chomp}/></g>'
         f'<g>{pixel_art(PACMAN_SHUT, accent)}<animate attributeName="opacity" values="0;1" {chomp}/></g>'
-        f'<animateMotion {motion} rotate="auto"/></g>'
+        f'<animateMotion path="{path_d}" keyPoints="0;0;1;1" '
+        f'keyTimes="0;{keys([READY, READY + travel])};1" calcMode="linear" rotate="auto" {loop}/></g>'
     )
     out.append("</svg>")
     print(f"maze: {len(walls)} walls, {len(pellets)} pellets ({len(power)} power), "
