@@ -14,6 +14,12 @@ on:
 permissions:
   contents: write
 
+# One run at a time: a run started by a push waits for the scheduled one
+# (and vice versa) instead of racing it to commit the same SVGs.
+concurrency:
+  group: profile-cards
+  cancel-in-progress: false
+
 jobs:
   render:
     name: Render profile card and contribution grid
@@ -36,15 +42,32 @@ jobs:
           python scripts/activity.py
 
       - name: Commit if changed
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dark_mode.svg light_mode.svg pacman_dark.svg pacman_light.svg activity_dark.svg activity_light.svg
-          if git diff --cached --quiet; then
-            echo "Cards unchanged."
-            exit 0
-          fi
-          git commit -m "chore: update profile card"
-          # The WakaTime workflow also commits to main; rebase onto it before pushing.
-          git pull --rebase origin main
-          git push
+          CARDS="dark_mode.svg light_mode.svg pacman_dark.svg pacman_light.svg activity_dark.svg activity_light.svg"
+          # If main moved while we rendered (a push, or the WakaTime workflow),
+          # don't try to merge generated SVGs: start again from the new main,
+          # re-render, and retry.
+          for attempt in 1 2 3; do
+            git add $CARDS
+            if git diff --cached --quiet; then
+              echo "Cards unchanged."
+              exit 0
+            fi
+            git commit -m "chore: update profile card"
+            if git push; then
+              exit 0
+            fi
+            echo "main moved during the render (attempt $attempt); re-rendering on top of it."
+            git fetch origin main
+            git reset --hard origin/main
+            python scripts/profile_card.py
+            python scripts/pacman_grid.py
+            python scripts/activity.py
+          done
+          echo "Could not push after 3 attempts."
+          exit 1
