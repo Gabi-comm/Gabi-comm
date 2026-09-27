@@ -186,8 +186,9 @@ def info_lines(stats: dict, today: date) -> list[list[tuple[str, str]]]:
 
 
 def invert_ascii(line: str) -> str:
+    """Flip glyph density for light backgrounds; background spaces stay blank."""
     last = len(RAMP) - 1
-    return "".join(RAMP[last - RAMP.index(ch)] if ch in RAMP else ch for ch in line)
+    return "".join(RAMP[last + 1 - RAMP.index(ch)] if ch in RAMP[1:] else ch for ch in line)
 
 
 def render(theme: dict, portrait: list[str], info: list[list[tuple[str, str]]]) -> str:

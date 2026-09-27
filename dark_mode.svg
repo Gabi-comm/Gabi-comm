@@ -1,70 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1037" height="482" viewBox="0 0 1037 482" font-family="Consolas, 'Courier New', monospace">
+<svg xmlns="http://www.w3.org/2000/svg" width="1037" height="493" viewBox="0 0 1037 493" font-family="Consolas, 'Courier New', monospace">
 <style>text { white-space: pre; }</style>
-<rect width="1037" height="482" rx="15" fill="#161b22"/>
+<rect width="1037" height="493" rx="15" fill="#161b22"/>
 <g fill="#c9d1d9" font-size="9">
-<text x="28" y="41.1" textLength="432.0" lengthAdjust="spacing">-----##+##%#`.::``............`:::::.:::::::::`.................................</text>
-<text x="28" y="51.5" textLength="432.0" lengthAdjust="spacing">*+-=+##*##%#`.`:``.............`::::.::::::::::::::::````.......................</text>
-<text x="28" y="61.9" textLength="432.0" lengthAdjust="spacing">#######+##%#`.`:`..............`::::.::::::::::::::::::::::`....................</text>
-<text x="28" y="72.3" textLength="432.0" lengthAdjust="spacing">:++-=*#*##%%:.`:`...............`:``.::::::::::::::::::::::::```................</text>
-<text x="28" y="82.7" textLength="432.0" lengthAdjust="spacing">`::-:-#=##%%=.`::``..................:::``.```::::::::::::::::`:................</text>
-<text x="28" y="93.1" textLength="432.0" lengthAdjust="spacing">...:..-=+#%#+.`::``.................`::::`.....```:::::::```...:................</text>
-<text x="28" y="103.5" textLength="432.0" lengthAdjust="spacing">```::``.`=##=.`::``.................-+:::::....................:................</text>
-<text x="28" y="113.9" textLength="432.0" lengthAdjust="spacing">:::::::::`.:`..::``................`=##+-:::`...................................</text>
-<text x="28" y="124.3" textLength="432.0" lengthAdjust="spacing">::::::::::::`..::``.................=*+++-::::`.................................</text>
-<text x="28" y="134.7" textLength="432.0" lengthAdjust="spacing">::::::--::::::`.`....``````````````.`....:`.``::::`:::`.........................</text>
-<text x="28" y="145.1" textLength="432.0" lengthAdjust="spacing">:::::::::---::::::::::::::::::::::::.....`..  ..``````..........................</text>
-<text x="28" y="155.5" textLength="432.0" lengthAdjust="spacing">::::::::::::::::::::::::::::::::::`:``......  . :::::::`........................</text>
-<text x="28" y="165.9" textLength="432.0" lengthAdjust="spacing">:--=---::::::`:::::::::::::::::::`...........   --::::::........................</text>
-<text x="28" y="176.3" textLength="432.0" lengthAdjust="spacing">-##%===+=+==:`:::::::::::::::::::`..-`........  --=--:::........................</text>
-<text x="28" y="186.7" textLength="432.0" lengthAdjust="spacing">##*%######%#:`::::::::::::::::::::.-:...........`-----::........................</text>
-<text x="28" y="197.1" textLength="432.0" lengthAdjust="spacing">=-=%######%#:`::::::::::::::::::::-=*--=+.......=-=-----........................</text>
-<text x="28" y="207.5" textLength="432.0" lengthAdjust="spacing">--**#*####%#:`:::::::::::::::::::::-=-==:.....`---=-----........................</text>
-<text x="28" y="217.9" textLength="432.0" lengthAdjust="spacing">##-=+#######:`::::::::::::::::::::::---=-....`----------........................</text>
-<text x="28" y="228.3" textLength="432.0" lengthAdjust="spacing">*--++%####*#:`::::::::::::::::::::::--:-:.....----=----+........................</text>
-<text x="28" y="238.7" textLength="432.0" lengthAdjust="spacing">#++%######*#:`::::::::::::::::::::::::==:.....`---------........................</text>
-<text x="28" y="249.1" textLength="432.0" lengthAdjust="spacing">##%%#%######:`::::::::::-*+:::::::::::::-`........`````:........................</text>
-<text x="28" y="259.5" textLength="432.0" lengthAdjust="spacing">###%######*#:`:::::::::*@@@#-::::::::::``...`.......``::`.......................</text>
-<text x="28" y="269.9" textLength="432.0" lengthAdjust="spacing">###%#+*###%#:`:::::::=%@@%%=-==:::::::::.....`-:::`::::``.......................</text>
-<text x="28" y="280.3" textLength="432.0" lengthAdjust="spacing">##%%#*=*#%%#::::::::*@%%%%#--=%=--:::::`....`::::++=::::::::`...................</text>
-<text x="28" y="290.7" textLength="432.0" lengthAdjust="spacing">###%######%#::::::=%%%%%#--:`+**#*+:::`.....::::::-:::::++=#*+``````............</text>
-<text x="28" y="301.1" textLength="432.0" lengthAdjust="spacing">%%%%#%#%#%*#:`::=*@***+=-::::-#%@%%%+::.....:::::::::``-*%@@%@%%#-::::`.........</text>
-<text x="28" y="311.5" textLength="432.0" lengthAdjust="spacing">###%####++--:`:+@%%%+=-::::.::%@%#+-==:....`:::::::::..:=%%%@@%@%*+:`:::`.... . </text>
-<text x="28" y="321.9" textLength="432.0" lengthAdjust="spacing">###+-=-----:-:=%%%#--:::::::::%%#++-*=`....::::::::::`..:+=%@@%%%%##*-.........`</text>
-<text x="28" y="332.3" textLength="432.0" lengthAdjust="spacing">+-::+-----=--+@@%*-::::::::::-%%%%%%%*`...`::::::::::.....=*#*@%%%%*-:..........</text>
-<text x="28" y="342.7" textLength="432.0" lengthAdjust="spacing">--:`:-------:=##%*-..`::`::::=%@@%%%%-....=::::::::::. ...`:+*---:-::`....... ..</text>
-<text x="28" y="353.1" textLength="432.0" lengthAdjust="spacing">---:::::--=::=@@@@#--:`.`.`:::%%@@@@%`...`:::::::::::```:::::::+`````..     ....</text>
-<text x="28" y="363.5" textLength="432.0" lengthAdjust="spacing">::::::----::..-%%%=::```..`:::#@%%%%+..``:----:`........```...........``````````</text>
-<text x="28" y="373.9" textLength="432.0" lengthAdjust="spacing">::::::::=---::::+**-----:::+++#%%%%%%%%%%::--:```.................`:::::::::::::</text>
-<text x="28" y="384.3" textLength="432.0" lengthAdjust="spacing">:::::-----=----===-::::``:::::-+*%%%%%%%+-:`:..:.:...... . .`..  ..`:```````....</text>
-<text x="28" y="394.7" textLength="432.0" lengthAdjust="spacing">::``..`.```:-:::`........`*##%%%%%%%%%%*=:-+===-``...... . =+=+. `...``.........</text>
-<text x="28" y="405.1" textLength="432.0" lengthAdjust="spacing">::``..`==``````...........```-===:`.`.......```.``.. ... .  . `  ..  ...........</text>
-<text x="28" y="415.5" textLength="432.0" lengthAdjust="spacing">.....`...```````......```::::::``....  ....  .`````.`.....   `` ..   ...........</text>
-<text x="28" y="425.9" textLength="432.0" lengthAdjust="spacing">.......................... ............ .     . .``````...  ...  .    ..........</text>
-<text x="28" y="436.3" textLength="432.0" lengthAdjust="spacing">...................   ....  ............... .    .. . .... .... ...  ...........</text>
-<text x="28" y="446.7" textLength="432.0" lengthAdjust="spacing">............. .......```````````````:``````:`` .......... `:... .`...  ...... . </text>
+<text x="28" y="36.3" textLength="432.0" lengthAdjust="spacing">                                                                                </text>
+<text x="28" y="46.7" textLength="432.0" lengthAdjust="spacing">                                                                                </text>
+<text x="28" y="57.1" textLength="432.0" lengthAdjust="spacing">                               ])]o]]X#o]]X%                                    </text>
+<text x="28" y="67.5" textLength="432.0" lengthAdjust="spacing">                             ]?;?=);==))X&amp;&amp;%XoXX                                </text>
+<text x="28" y="77.9" textLength="432.0" lengthAdjust="spacing">                           oX)+++;~?X#X#&amp;&amp;#o)|+||]|                             </text>
+<text x="28" y="88.3" textLength="432.0" lengthAdjust="spacing">                         #%%X))?~:|?=;))#&amp;&amp;#o]~::::.:+                          </text>
+<text x="28" y="98.7" textLength="432.0" lengthAdjust="spacing">                        ##&amp;%X]?~?|=~;+?)X##o~;::..`....?                        </text>
+<text x="28" y="109.1" textLength="432.0" lengthAdjust="spacing">                      %&amp;%&amp;%%#o+]#||++=]X%#o)~:...``...`.                        </text>
+<text x="28" y="119.5" textLength="432.0" lengthAdjust="spacing">                      %#X##&amp;%o|oX#]]%oo##o)?~.....`...`.o                       </text>
+<text x="28" y="129.9" textLength="432.0" lengthAdjust="spacing">                     %Xo#%X%XXXX#]]X))##X);:....```.....o                       </text>
+<text x="28" y="140.3" textLength="432.0" lengthAdjust="spacing">                     Xo]]|oX#]]oXXo]|)]X]:.`............X                       </text>
+<text x="28" y="150.7" textLength="432.0" lengthAdjust="spacing">                     oX)=)XX]+~|]X]=::~=~:~......```````]                       </text>
+<text x="28" y="161.1" textLength="432.0" lengthAdjust="spacing">                     X]+~~)#]~~~:~~..:~::::........`````)                       </text>
+<text x="28" y="171.5" textLength="432.0" lengthAdjust="spacing">                     o+:~:;]X])o)]~::~=;~~~:::........``]                       </text>
+<text x="28" y="181.9" textLength="432.0" lengthAdjust="spacing">                      =::=]&amp;&amp;@&amp;%#Xo]))]]o)+~::::......`.o                       </text>
+<text x="28" y="192.3" textLength="432.0" lengthAdjust="spacing">                      ]~:]&amp;&amp;&amp;&amp;%XXooXXXXXoo]])))|?=~:..`=))                      </text>
+<text x="28" y="202.7" textLength="432.0" lengthAdjust="spacing">                      %#~#&amp;&amp;&amp;#oX])oX##XXXo]?~~~~=|+~:..+?+%                     </text>
+<text x="28" y="213.1" textLength="432.0" lengthAdjust="spacing">                      %&amp;X%&amp;&amp;%#%#)=|)ooX);;;;+==~:::::~.~=)                      </text>
+<text x="28" y="223.5" textLength="432.0" lengthAdjust="spacing">                      #&amp;X%&amp;&amp;&amp;&amp;&amp;%#o]#&amp;@@&amp;).~~=++=~~~~:;::=#                      </text>
+<text x="28" y="233.9" textLength="432.0" lengthAdjust="spacing">                       &amp;%&amp;&amp;@@@&amp;&amp;&amp;&amp;@@@@@&amp;#:::~;;=====~=:~#                       </text>
+<text x="28" y="244.3" textLength="432.0" lengthAdjust="spacing">                        &amp;@&amp;&amp;&amp;&amp;&amp;&amp;@@&amp;&amp;@@@&amp;X:.:====++???oo                         </text>
+<text x="28" y="254.7" textLength="432.0" lengthAdjust="spacing">                         %#&amp;&amp;&amp;&amp;&amp;&amp;&amp;%&amp;&amp;&amp;&amp;#X)o~=+++?||?|                           </text>
+<text x="28" y="265.1" textLength="432.0" lengthAdjust="spacing">                           %&amp;&amp;&amp;&amp;&amp;&amp;&amp;@&amp;oo];~;:~=+||)|?o                           </text>
+<text x="28" y="275.5" textLength="432.0" lengthAdjust="spacing">                            &amp;&amp;&amp;&amp;&amp;&amp;&amp;@@@@%#|:~;=+|))))                            </text>
+<text x="28" y="285.9" textLength="432.0" lengthAdjust="spacing">                             &amp;&amp;&amp;&amp;&amp;%&amp;&amp;##Xo)+=+??|)))#                            </text>
+<text x="28" y="296.3" textLength="432.0" lengthAdjust="spacing">                              &amp;&amp;&amp;%X%&amp;&amp;%o]~:~;=|))))                             </text>
+<text x="28" y="306.7" textLength="432.0" lengthAdjust="spacing">                              @&amp;%%&amp;&amp;&amp;#Xoo]]))))|)+:o                            </text>
+<text x="28" y="317.1" textLength="432.0" lengthAdjust="spacing">                             %&amp;&amp;&amp;&amp;%%%%#X]))))))?~:=X                            </text>
+<text x="28" y="327.5" textLength="432.0" lengthAdjust="spacing">                      X##%%%%%&amp;&amp;&amp;&amp;@&amp;%&amp;%#o]]])?~:+]o]#                           </text>
+<text x="28" y="337.9" textLength="432.0" lengthAdjust="spacing">              ]]oooXXX####%%%%&amp;&amp;&amp;&amp;&amp;&amp;@&amp;%Xo]|=+)ooo]]]))]#                        </text>
+<text x="28" y="348.3" textLength="432.0" lengthAdjust="spacing">     Xooo])|?|]]]oooXXX#####%%&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;@@%]]o]]]]o]|+=+?)|]ooo]]oXXX#            </text>
+<text x="28" y="358.7" textLength="432.0" lengthAdjust="spacing">   @@#oooo])|?))]]ooooXXX###%%%&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;]%X:~))))?===;~==;==+++??;=;==+++)]]     </text>
+<text x="28" y="369.1" textLength="432.0" lengthAdjust="spacing"> @@@@@&amp;Xooo]])))]]]oooooXXX###%%&amp;&amp;&amp;&amp;&amp;X);;~::.+)|???=??=~~+|)|+;~~:~~~;|===)     </text>
+<text x="28" y="379.5" textLength="432.0" lengthAdjust="spacing">@@@@@@@&amp;#ooo]]]]]]]]oooooXXXX###%&amp;%X)))+;:..::;)o))))))+;)])?==;~;;=+]]]]]]]    </text>
+<text x="28" y="389.9" textLength="432.0" lengthAdjust="spacing">@@@@@@@@&amp;&amp;oo]o]]]]]]]]ooooXXXXX###XoXX%o~:`.+]ooooo]])+?|]])??+++=+)]oooo]))]~  </text>
+<text x="28" y="400.3" textLength="432.0" lengthAdjust="spacing">@@@@@@&amp;&amp;%&amp;&amp;XoXo]]]]]]]]oooXXXXXXXX#XXXo;~..`+||]o]]]]]))o]]])))||)]oXXoooo|)]=..</text>
+<text x="28" y="410.7" textLength="432.0" lengthAdjust="spacing">@&amp;&amp;@@@&amp;&amp;####X&amp;#o]]ooooo]]ooXXXXXXXXX#]:::...:;?)))]oX#XXXooooo]]]oXXXX###X|]]:::</text>
+<text x="28" y="421.1" textLength="432.0" lengthAdjust="spacing">&amp;&amp;&amp;&amp;@@%%%###%@@&amp;Xooooooooo]oXXXXXoXXX;....`.`=|)]oX#&amp;@@&amp;%%%#XooX#####%#%%#]oo]);</text>
+<text x="28" y="431.5" textLength="432.0" lengthAdjust="spacing">&amp;&amp;&amp;&amp;&amp;&amp;#%#XXo&amp;&amp;&amp;&amp;&amp;%XXXXXXXXXoooXX#XXXo:....```~+)oX#%%%&amp;&amp;&amp;&amp;&amp;%###%&amp;&amp;%%%%%%#%oo#X]?</text>
+<text x="28" y="441.9" textLength="432.0" lengthAdjust="spacing">&amp;&amp;&amp;&amp;%%#%#ooo#%@&amp;%%%%%%%%%%###XooXoX#]:...````:+]X%%##%%&amp;&amp;&amp;&amp;@@@@@@@&amp;&amp;&amp;&amp;%%#%Xo%Xoo</text>
+<text x="28" y="452.3" textLength="432.0" lengthAdjust="spacing">&amp;%#XXXX#o])]#&amp;%%%%##%#%#%%%%%%%#o]oX+..``````:|X%#X####%%&amp;&amp;@@@@&amp;&amp;&amp;&amp;&amp;&amp;&amp;%#%%#X&amp;%%%</text>
+<text x="28" y="462.7" textLength="432.0" lengthAdjust="spacing">&amp;%XXXXXX];+oX#&amp;&amp;&amp;&amp;&amp;@&amp;&amp;&amp;&amp;&amp;%#%%%&amp;%%#Xo:..``````:XXXXXXX#%&amp;&amp;&amp;%%&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;%%###%%#&amp;&amp;@@</text>
 </g>
 <g font-size="14">
-<text x="488.0" y="42.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#c9d1d9">gabriel@solomon </tspan><tspan fill="#616e7f">——————————————————————————————————————————————</tspan></text>
-<text x="488.0" y="61.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">OS</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .............................</tspan><tspan fill="#a5d6ff"> Windows 11, Ubuntu (Azure)</tspan></text>
-<text x="488.0" y="79.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Uptime</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .........................</tspan><tspan fill="#a5d6ff"> 2 years, 9 months, 16 days</tspan></text>
-<text x="488.0" y="98.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Host</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ....................</tspan><tspan fill="#a5d6ff"> University of the East - Caloocan</tspan></text>
-<text x="488.0" y="116.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Kernel</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .................</tspan><tspan fill="#a5d6ff"> BS Computer Science, Class of 2027</tspan></text>
-<text x="488.0" y="135.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">IDE</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..................</tspan><tspan fill="#a5d6ff"> VS Code, Jupyter, Colab, Claude Code</tspan></text>
-<text x="488.0" y="153.8" textLength="8.4" lengthAdjust="spacing"><tspan fill="#616e7f">.</tspan></text>
-<text x="488.0" y="172.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Languages.Programming</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ........</tspan><tspan fill="#a5d6ff"> Python, TypeScript, C++, SQL</tspan></text>
-<text x="488.0" y="190.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Languages.AI/ML</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..........</tspan><tspan fill="#a5d6ff"> TensorFlow, scikit-learn, YOLOv8</tspan></text>
-<text x="488.0" y="209.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Languages.LLM</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ............</tspan><tspan fill="#a5d6ff"> LangChain, HuggingFace, ChromaDB</tspan></text>
-<text x="488.0" y="227.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Languages.Real</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..........................</tspan><tspan fill="#a5d6ff"> English, Filipino</tspan></text>
-<text x="488.0" y="246.3" textLength="8.4" lengthAdjust="spacing"><tspan fill="#616e7f">.</tspan></text>
-<text x="488.0" y="264.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Role.Current</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .................</tspan><tspan fill="#a5d6ff"> AI Security Intern @ RivanAI</tspan></text>
-<text x="488.0" y="283.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Role.Leadership</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ...............</tspan><tspan fill="#a5d6ff"> ACSS President, UE Caloocan</tspan></text>
-<text x="488.0" y="301.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Role.Community</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .......</tspan><tspan fill="#a5d6ff"> AWS Cloud Club PH, AWS UG e:Novators</tspan></text>
-<text x="488.0" y="320.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Awards</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ...............</tspan><tspan fill="#a5d6ff"> PJDSC 2024 Top 10, Caffeine AI Judge</tspan></text>
-<text x="488.0" y="338.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#c9d1d9">- Contact </tspan><tspan fill="#616e7f">————————————————————————————————————————————————————</tspan></text>
-<text x="488.0" y="357.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Email</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ........................</tspan><tspan fill="#a5d6ff"> gabrieljohnsolomon@gmail.com</tspan></text>
-<text x="488.0" y="375.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">LinkedIn</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ............................</tspan><tspan fill="#a5d6ff"> in/gabrieljohnsolomon</tspan></text>
-<text x="488.0" y="394.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">GitHub</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..........................................</tspan><tspan fill="#a5d6ff"> Gabi-comm</tspan></text>
-<text x="488.0" y="412.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#c9d1d9">- GitHub Stats </tspan><tspan fill="#616e7f">———————————————————————————————————————————————</tspan></text>
-<text x="488.0" y="431.3" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Repos</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .......</tspan><tspan fill="#a5d6ff"> 35 {Contributed: 4}</tspan><tspan fill="#c9d1d9"> | </tspan><tspan fill="#ffa657">Stars</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..............</tspan><tspan fill="#a5d6ff"> 0</tspan></text>
-<text x="488.0" y="449.8" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Commits</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ...................</tspan><tspan fill="#a5d6ff"> 1,234</tspan><tspan fill="#c9d1d9"> | </tspan><tspan fill="#ffa657">Followers</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..........</tspan><tspan fill="#a5d6ff"> 6</tspan></text>
+<text x="488.0" y="48.5" textLength="520.8" lengthAdjust="spacing"><tspan fill="#c9d1d9">gabriel@solomon </tspan><tspan fill="#616e7f">——————————————————————————————————————————————</tspan></text>
+<text x="488.0" y="67.0" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">OS</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .............................</tspan><tspan fill="#a5d6ff"> Windows 11, Ubuntu (Azure)</tspan></text>
+<text x="488.0" y="85.5" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Uptime</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .........................</tspan><tspan fill="#a5d6ff"> 2 years, 9 months, 16 days</tspan></text>
+<text x="488.0" y="104.0" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Host</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ....................</tspan><tspan fill="#a5d6ff"> University of the East - Caloocan</tspan></text>
+<text x="488.0" y="122.5" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Kernel</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .................</tspan><tspan fill="#a5d6ff"> BS Computer Science, Class of 2027</tspan></text>
+<text x="488.0" y="140.9" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">IDE</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..................</tspan><tspan fill="#a5d6ff"> VS Code, Jupyter, Colab, Claude Code</tspan></text>
+<text x="488.0" y="159.4" textLength="8.4" lengthAdjust="spacing"><tspan fill="#616e7f">.</tspan></text>
+<text x="488.0" y="177.9" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Languages.Programming</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ........</tspan><tspan fill="#a5d6ff"> Python, TypeScript, C++, SQL</tspan></text>
+<text x="488.0" y="196.4" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Languages.AI/ML</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..........</tspan><tspan fill="#a5d6ff"> TensorFlow, scikit-learn, YOLOv8</tspan></text>
+<text x="488.0" y="214.9" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Languages.LLM</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ............</tspan><tspan fill="#a5d6ff"> LangChain, HuggingFace, ChromaDB</tspan></text>
+<text x="488.0" y="233.4" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Languages.Real</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..........................</tspan><tspan fill="#a5d6ff"> English, Filipino</tspan></text>
+<text x="488.0" y="251.9" textLength="8.4" lengthAdjust="spacing"><tspan fill="#616e7f">.</tspan></text>
+<text x="488.0" y="270.4" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Role.Current</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .................</tspan><tspan fill="#a5d6ff"> AI Security Intern @ RivanAI</tspan></text>
+<text x="488.0" y="288.9" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Role.Leadership</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ...............</tspan><tspan fill="#a5d6ff"> ACSS President, UE Caloocan</tspan></text>
+<text x="488.0" y="307.4" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Role.Community</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .......</tspan><tspan fill="#a5d6ff"> AWS Cloud Club PH, AWS UG e:Novators</tspan></text>
+<text x="488.0" y="325.9" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Awards</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ...............</tspan><tspan fill="#a5d6ff"> PJDSC 2024 Top 10, Caffeine AI Judge</tspan></text>
+<text x="488.0" y="344.4" textLength="520.8" lengthAdjust="spacing"><tspan fill="#c9d1d9">- Contact </tspan><tspan fill="#616e7f">————————————————————————————————————————————————————</tspan></text>
+<text x="488.0" y="362.9" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Email</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ........................</tspan><tspan fill="#a5d6ff"> gabrieljohnsolomon@gmail.com</tspan></text>
+<text x="488.0" y="381.4" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">LinkedIn</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ............................</tspan><tspan fill="#a5d6ff"> in/gabrieljohnsolomon</tspan></text>
+<text x="488.0" y="399.9" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">GitHub</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..........................................</tspan><tspan fill="#a5d6ff"> Gabi-comm</tspan></text>
+<text x="488.0" y="418.4" textLength="520.8" lengthAdjust="spacing"><tspan fill="#c9d1d9">- GitHub Stats </tspan><tspan fill="#616e7f">———————————————————————————————————————————————</tspan></text>
+<text x="488.0" y="436.9" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Repos</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> .......</tspan><tspan fill="#a5d6ff"> 35 {Contributed: 4}</tspan><tspan fill="#c9d1d9"> | </tspan><tspan fill="#ffa657">Stars</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..............</tspan><tspan fill="#a5d6ff"> 0</tspan></text>
+<text x="488.0" y="455.4" textLength="520.8" lengthAdjust="spacing"><tspan fill="#616e7f">. </tspan><tspan fill="#ffa657">Commits</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ...................</tspan><tspan fill="#a5d6ff"> 1,234</tspan><tspan fill="#c9d1d9"> | </tspan><tspan fill="#ffa657">Followers</tspan><tspan fill="#c9d1d9">:</tspan><tspan fill="#616e7f"> ..........</tspan><tspan fill="#a5d6ff"> 6</tspan></text>
 </g></svg>
