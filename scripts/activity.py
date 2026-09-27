@@ -299,7 +299,7 @@ def render(theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str
     flag_y = pole_top
     flag = (f'<g transform="translate({LINE_X + 2},{flag_y})">{pixel_art(FLAG, pole, 3)}</g>'
             f'<g transform="translate({LINE_X + 2},{flag_y})" opacity="0">'
-            f'{tl.show([(0, False), (flag_at, True), (dur, True)])}{pixel_art(FLAG, accent, 3)}</g>')
+            f'{tl.show([(0, False), (flag_at, True), (dur, True)])}{pixel_art(FLAG, ink, 3)}</g>')
 
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" viewBox="0 0 {WIDTH} {height}" '
