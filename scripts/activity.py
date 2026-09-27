@@ -1,20 +1,4 @@
-"""Render the contribution-activity timeline: activity_dark.svg + activity_light.svg.
 
-The same "Contribution activity" GitHub shows on the profile (commits per repo,
-repositories created, pull requests...), month by month for the last few
-months, drawn in the WakaTime-dashboard look of the other cards: 1-bit dithered
-bars, stat tiles with a dithered strip, tiny labels. A pixel Mario climbs the
-timeline's vertical line from the oldest month to the newest, lighting each
-month up as he passes it, and reaches the waving flag at the top, where a
-pixel firework goes off and then he gets hit: the classic Super Mario Bros. hop and fall off
-the bottom. Then he climbs again.
-
-Data comes from the public activity fragment of github.com/<user> (what
-visitors see; no token needed).
-
-Usage:
-    python scripts/activity.py
-"""
 import calendar
 import html
 import math
@@ -29,43 +13,37 @@ from pacman_grid import TZ, Timeline, patterns, pixel_art
 from profile_card import PAD, THEMES, USER
 
 ROOT = Path(__file__).resolve().parent.parent
-MONTHS = 4                 # most recent months shown
-MAX_ROWS = 5               # rows per activity item before "+N more"
+MONTHS = 4                
+MAX_ROWS = 5               
 WIDTH = 900
 
-# Layout (px).
+
 TILE_H = 52
-LINE_X = PAD + 30          # the timeline / Mario's pole
-TEXT_X = LINE_X + 22      # month names; item boxes sit here too, clear of the line
-ITEM_X = TEXT_X + 18       # "Created ..." summaries, right of their box
-ROW_X = ITEM_X + 14        # repo rows under a summary
+LINE_X = PAD + 30          
+TEXT_X = LINE_X + 22      
+ITEM_X = TEXT_X + 18       
+ROW_X = ITEM_X + 14       
 HEADER_H = 30
 SUMMARY_H = 24
 ROW_H = 18
 BAR_W = 150
 MONTH_GAP = 10
 
-# Mario: climbs at CLIMB px/s, pauses at each month and at the flag, then gets
-# hit: freezes, hops up HOP px and falls under GRAVITY off the bottom of the card.
 CLIMB = 45
 PAUSE = 1.2
 FLAG_PAUSE = 1.2
 HIT_FREEZE = 0.5
 HOP, HOP_TIME = 28, 0.35
-GRAVITY = 1400             # px/s^2
-STEP = 0.18                # s per climbing frame
+GRAVITY = 1400            
+STEP = 0.18                
 MARIO_PX = 2
-# Mario, laid out like the NES original, in one family with the card: cap (C)
-# and overalls (B) in the card's orange, skin (S) white (a light grey on the
-# light card, where pure white would vanish into the background), hair/eyes/
-# moustache/shoes (H) a deep shade of the orange, shirt and sleeves (R) muted grey.
-# Dark hair, light skin in both themes, like the real sprite.
+
 MARIO_PALETTE = {
     "dark": {"C": "#ffa657", "B": "#ffa657", "S": "#ffffff", "H": "#b35c1e", "R": "#8b949e"},
     "light": {"C": "#953800", "B": "#953800", "S": "#d0d7de", "H": "#4a1d00", "R": "#6e7781"},
 }
 MARIO_CLIMB = [
-    # Small Mario hugging the pole on his right, two climbing frames.
+
     ["....CCCCC...", "...CCCCCCCCC", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
      "..HHSSSSHHH.", "....SSSSSSS.", "...RRBRRRSS.", "..RRRBRRBSS.", "..RRRBBBBR..",
      "..SSRBBBBB..", "..SSBBBBBB..", "...BBBBBB...", "...BBB.BBB..", "..HHH..HHH..",
@@ -75,25 +53,22 @@ MARIO_CLIMB = [
      ".SSRBBBBBB..", "..SBBBBBBB..", "...BBBBBB...", "..BBB..BBB..", ".HHH...HHH..",
      ".HHHH...HHH."],
 ]
-MARIO_HIT = [  # facing us, arms flung up: the Super Mario Bros. "hit" pose
+MARIO_HIT = [  
     ".SS......SS.", ".SS.CCCC.SS.", "..CCCCCCCC..", "..HHSHHSHH..", ".HSSHSSHSSH.",
     ".HSSSSSSSSH.", "..SSHHHHSS..", "...SSSSSS...", "..RRBRRBRR..", ".RRRBBBBRRR.",
     ".RRBBBBBBRR.", "..BBBBBBBB..", "..BBB..BBB..", "..BBB..BBB..", ".HHH....HHH.",
     "HHHH....HHHH"]
-# The flag: FLAG_W x FLAG_H cells of FLAG_PX, rippling in WAVE_FRAMES frames
-# (each column bobs a cell on a sine, pinned at the pole, loosest at the tip).
+
 FLAG_W, FLAG_H, FLAG_PX = 7, 4, 3
 WAVE_FRAMES, WAVE_TIME = 4, 0.8
-# The firework when Mario reaches the top: a rocket streaks up ROCKET_RISE px,
-# then bursts into an outer ring of orange sparks and an inner ring of ink
-# sparks that fly out, droop a little and flicker out.
+
 ROCKET_RISE, ROCKET_TIME = 34, 0.35
-SPARKS = ((12, 20, "lit"), (6, 10, "ink"))  # (count, radius px, colour) per ring
+SPARKS = ((12, 20, "lit"), (6, 10, "ink")) 
 BURST_TIME, SPARK_PX, DROOP = 0.6, 3, 6
 
 
 
-# ---------------------------------------------------------------- data
+
 
 def fetch_month(year: int, month: int) -> list[dict]:
     """The activity items GitHub lists for one month on the profile."""
@@ -165,7 +140,7 @@ def totals(months: list[dict]) -> list[tuple[str, str]]:
             (str(repos_made), "Repos Created"), (str(prs), "Pull Requests")]
 
 
-# ---------------------------------------------------------------- drawing
+
 
 def mario_art(rows: list[str], palette: dict, px: int = MARIO_PX) -> str:
     """Mario's pixel art in the card palette, anchored at its bottom-right corner."""
@@ -191,7 +166,7 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
     out: list[str] = []
     y = PAD
 
-    # Title and stat tiles.
+ 
     out.append(f'<text x="{PAD}" y="{y + 12}" font-size="15" font-weight="bold" fill="{lit}">Contribution Activity</text>'
                f'<text x="{right}" y="{y + 12}" text-anchor="end" font-size="10" fill="{ink}" opacity="0.6">'
                f'last {MONTHS} months</text>')
@@ -202,11 +177,11 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
         out.append(f'<rect x="{x:.0f}" y="{y + 4}" width="8" height="{TILE_H - 16}" fill="url(#l1)"/>'
                    f'<text x="{x + 16:.0f}" y="{y + 26}" font-size="24" fill="{ink}">{escape(value)}</text>'
                    f'<text x="{x + 16:.0f}" y="{y + 40}" font-size="11" fill="{ink}" opacity="0.8">{escape(label)}</text>')
-    y += TILE_H + 70  # headroom for the flag and its firework at the top of the pole
+    y += TILE_H + 70  
 
-    # Timeline: month headers, activity items, rows with dithered bars.
-    nodes = []  # y of each month's node
-    rules = []  # (x, y, width) of each month's dotted rule
+
+    nodes = [] 
+    rules = []  
     body: list[str] = []
     for mi, mo in enumerate(months):
         ny = y + HEADER_H // 2
@@ -256,45 +231,40 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
     bottom = y - MONTH_GAP
     height = bottom + PAD
 
-    # Mario's climb: from the bottom of the pole up through each month's node
-    # (oldest first), pausing at each, to the flag above the newest.
     pole_top = nodes[0] - 34
     stops = sorted(nodes, reverse=True) + [pole_top + 10]
     t, pos = 0.0, bottom
     keys = [(0.0, bottom)]
     reached = {}
-    climbing = []  # (start, end) windows while moving
+    climbing = []  
     for i, sy in enumerate(stops):
         dt = (pos - sy) / CLIMB
         climbing.append((t, t + dt))
         t += dt
         keys.append((t, sy))
         if i < len(nodes):
-            reached[len(nodes) - 1 - i] = t  # month index this node belongs to
+            reached[len(nodes) - 1 - i] = t  
         t += FLAG_PAUSE if i == len(stops) - 1 else PAUSE
         keys.append((t, sy))
         pos = sy
     flag_at = keys[-2][0]
-    # climbing[i] is the climb up to stops[i]; stops run oldest month first.
     approach = {len(nodes) - 1 - i: climbing[i] for i in range(len(nodes))}
 
-    # Hit at the flag: freeze, hop up, then fall (accelerating) off the card.
     top = stops[-1]
     hit_at = t
     t += HIT_FREEZE
     keys.append((t, top))
     t += HOP_TIME
     keys.append((t, top - HOP))
-    drop = height + 40 - (top - HOP)  # until he's below the card's bottom edge
+    drop = height + 40 - (top - HOP) 
     fall_time = (2 * drop / GRAVITY) ** 0.5
-    for j in range(1, 9):  # sample the parabola so the fall speeds up
+    for j in range(1, 9):  
         dt = fall_time * j / 8
         keys.append((t + dt, top - HOP + 0.5 * GRAVITY * dt * dt))
     t += fall_time
-    dur = t + 0.6  # a beat off-screen before he climbs again
+    dur = t + 0.6 
     tl = Timeline(dur)
 
-    # Months light up orange as Mario reaches them, until the loop restarts.
     for mi, at in reached.items():
         old = f'<text class="m{mi}"'
         i = next(j for j, b in enumerate(body) if old in b)
@@ -303,9 +273,6 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
                   .replace("</text>", tl.show([(0, False), (at, True)]) + "</text>"))
         body[i] = body[i].replace(label_el, label_el + lit_el)
 
-    # Each month's dotted rule fills orange in step with Mario's climb toward
-    # that month: empty as he sets off from the marker below, full as he
-    # reaches its own. Taller (busier) months fill slower.
     for mi, (rx, ry, rw) in enumerate(rules):
         start, end = approach[mi]
         body.append(f'<rect x="{rx}" y="{ry}" width="0" height="2" fill="url(#l1o)">'
@@ -321,16 +288,13 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
                 changes.append((a + k * STEP, k % 2 == j))
                 k += 1
             changes.append((b, j == 0))
-        changes.append((hit_at, False))  # the hit pose takes over at the flag
+        changes.append((hit_at, False))  
         frames.append(f'<g opacity="0">{tl.show(changes)}{mario_art(art, palette)}</g>')
-    # Hit pose, centred on the pole (the climbing sprites hug it from the left).
     frames.append(f'<g opacity="0">{tl.show([(0, False), (hit_at, True), (t, False)])}'
                   f'<g transform="translate({len(MARIO_HIT[0]) * MARIO_PX // 2},0)">'
                   f'{mario_art(MARIO_HIT, palette)}</g></g>')
     motion = tl.motion([k for k, _ in keys], [(LINE_X + 1, v + 16) for _, v in keys])
 
-    # Waving flag: frames of a rippling rectangle, orange like the pole until Mario
-    # reaches it, then ink (the fill is animated; the frames inherit it).
     wave = []
     for f in range(WAVE_FRAMES):
         cells = []
@@ -345,7 +309,6 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
             f'<animate attributeName="fill" {tl.steps([(0, lit), (flag_at, ink), (dur, ink)])}/>'
             f'{"".join(wave)}</g>')
 
-    # The firework: a rocket from the flag as Mario arrives, then the burst.
     fx, fy = LINE_X + 1 + FLAG_W * FLAG_PX // 2, pole_top - 4
     burst_at = flag_at + ROCKET_TIME
     by = fy - ROCKET_RISE
@@ -360,7 +323,7 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
         for k in range(count):
             ang = 2 * math.pi * k / count
             dx, dy = round(radius * math.cos(ang)), round(radius * math.sin(ang))
-            # Solid while they fly out, then a quick flicker as they burn out.
+
             flicker = [(0, False), (burst_at, True)] + [
                 (burst_at + BURST_TIME * 0.55 + 0.05 * f, f % 2 == 1) for f in range(int(BURST_TIME * 0.45 / 0.05))
             ] + [(end, False)]
@@ -394,7 +357,7 @@ def main() -> None:
     today = datetime.now(TZ).date()
     try:
         months = [{"year": y, "month": m, "items": fetch_month(y, m)} for y, m in recent_months(today)]
-    except Exception as err:  # keep yesterday's card rather than fail the workflow
+    except Exception as err:  
         print("activity fetch failed, leaving the cards as they are:", err)
         sys.exit(0)
     for mo in months:
