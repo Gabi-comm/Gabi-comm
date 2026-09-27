@@ -424,6 +424,10 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
                     aim = far
             return aim
 
+        # Each ghost ranks the cells it would like to step into this tick;
+        # then they move together without ever sharing a cell or passing
+        # through each other (eyes heading home are exempt).
+        wants: dict[int, list[tuple]] = {}
         for i, g in enumerate(ghosts):
             g["prev"] = g["at"]
             mode = g["mode"]
@@ -433,9 +437,8 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
                 continue
             if mode == "leaving":
                 path = bfs(graph, g["at"], house["exit"])
-                g["at"] = path[1] if path and len(path) > 1 else g["at"]
-                if g["at"] == house["exit"]:
-                    g["mode"] = "roam"
+                if path and len(path) > 1:
+                    wants[i] = [path[1]]
                 continue
             if mode == "eyes":
                 slot = house["slots"][i]
@@ -447,15 +450,42 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
             # roam
             options = [n for n in sorted(graph[g["at"]]) if n not in inside]
             forward = [n for n in options if n != g.get("last")] or options
+            back = [n for n in options if n not in forward]  # only if boxed in by ghosts
             if g["scared"]:
                 if k % 2:  # half speed while blue
                     continue
-                g["at"] = max(forward, key=lambda n: (to_pac.get(n, 0), rng.random()))
+                rank = sorted(forward, key=lambda n: (-to_pac.get(n, 0), rng.random()))
             else:  # hunt: same speed as Pac-Man, best way forward toward its target
                 aim = target(i)
                 to_aim = to_pac if aim == pac else distances(graph, aim)
-                g["at"] = min(forward, key=lambda n: (to_aim.get(n, 99), rng.random()))
-            g["last"] = g["prev"]
+                rank = sorted(forward, key=lambda n: (to_aim.get(n, 99), rng.random()))
+            wants[i] = rank + back
+
+        solid = [g for g in ghosts if g["mode"] != "eyes"]
+        pending = dict(wants)
+        for _ in range(len(ghosts) + 1):  # let leaders clear a cell before followers take it
+            moved = False
+            for i, choices in list(pending.items()):
+                g = ghosts[i]
+                for cell in choices:
+                    holder = next((o for o in solid if o is not g and o["at"] == cell), None)
+                    if holder is None:
+                        g["at"] = cell
+                        del pending[i]
+                        moved = True
+                        break
+                    j = ghosts.index(holder)
+                    if j in pending and g["at"] not in pending[j][:1]:
+                        break  # holder may still move out of the way: wait a pass
+                    # holder is staying, or wants our cell (no swapping): try the next choice
+            if not moved:
+                break
+        for i in wants:
+            if ghosts[i]["mode"] == "roam" and ghosts[i]["at"] != ghosts[i]["prev"]:
+                ghosts[i]["last"] = ghosts[i]["prev"]
+        for g in ghosts:
+            if g["mode"] == "leaving" and g["at"] == house["exit"]:
+                g["mode"] = "roam"
 
         # --- Collisions: same cell, or passing through each other.
         caught = False
