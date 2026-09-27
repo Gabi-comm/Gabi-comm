@@ -275,9 +275,12 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
 
     for mi, (rx, ry, rw) in enumerate(rules):
         start, end = approach[mi]
-        body.append(f'<rect x="{rx}" y="{ry}" width="0" height="2" fill="url(#l1o)">'
-                    f'<animate attributeName="width" values="0;0;{rw};{rw}" '
-                    f'keyTimes="0;{tl.key(start)};{tl.key(end)};1" calcMode="linear" {tl.loop}/></rect>')
+        # Fills right to left: the left edge slides from the rule's far end to
+        # the month name while the width grows to match.
+        timing = f'keyTimes="0;{tl.key(start)};{tl.key(end)};1" calcMode="linear" {tl.loop}'
+        body.append(f'<rect x="{rx + rw}" y="{ry}" width="0" height="2" fill="url(#l1o)">'
+                    f'<animate attributeName="x" values="{rx + rw};{rx + rw};{rx};{rx}" {timing}/>'
+                    f'<animate attributeName="width" values="0;0;{rw};{rw}" {timing}/></rect>')
 
     frames = []
     for j, art in enumerate(MARIO_CLIMB):
