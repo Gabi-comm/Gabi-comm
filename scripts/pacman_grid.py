@@ -10,7 +10,13 @@ SMIL (so it animates inside a GitHub README <img>): everyone spawns in the ghost
 house mid-year, four ghosts hunt Pac-Man, a power pellet turns them blue and
 Pac-Man hunts them back, and a normal ghost touching Pac-Man costs a life.
 Clearing every day moves on to the next level (three in all); losing the last
-life is GAME OVER. Then it resets.
+life is GAME OVER.
+
+Pac-Man learns: the SVG holds MATCHES games back to back on the day's mazes.
+After each one he remembers where the ghosts caught him (and steers clear of
+those spots), rehearses the match with small tweaks to his play style and
+keeps whatever did best. So a visitor who keeps watching sees a rookie turn
+into a better player. Then the whole story starts over.
 
 Usage:
     python scripts/pacman_grid.py               # live data from your public profile
@@ -79,6 +85,16 @@ PAC_COLOURS = {
     "light": ("#cf222e", "#8250df", "#1a7f37", "#0969da", "#9a6700", "#bf3989", "#1b7c83"),
 }
 COLOUR_CYCLE = 6           # resets before the colour sequence repeats
+
+# Learning. A play style is a small set of knobs: `margin` = how many steps
+# ahead of the ghosts a day must be before he'll plan through it, `avoid` =
+# how much extra head start he demands on days he remembers being caught
+# near, `power` = whether he saves power pellets until a ghost is close.
+MATCHES = 4                # at most; the story stops early once he stops improving
+DEFAULT_POLICY = {"margin": 1, "avoid": 0, "power": 0}
+AVOID_STEPS = (0, 1, 2, 4)
+MEMORY_RADIUS = 2          # a caught spot also taints days this close to it
+DANGER_MARK = ["#...#", ".#.#.", "..#..", ".#.#.", "#...#"]
 
 LEVELS = {"NONE": 0, "FIRST_QUARTILE": 1, "SECOND_QUARTILE": 2,
           "THIRD_QUARTILE": 3, "FOURTH_QUARTILE": 4}
@@ -289,9 +305,13 @@ def distances(graph: dict[tuple, set], start: tuple) -> dict[tuple, int]:
 
 # ---------------------------------------------------------------- game
 
-def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
-    """Play one level with `lives` left. Returns per-tick frames (deaths and
-    respawn READY pauses included), eat times, the outcome and lives left."""
+def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int,
+             policy: dict = DEFAULT_POLICY, memory: dict | None = None) -> dict:
+    """Play one level with `lives` left, Pac-Man using `policy` and his
+    `memory` of dangerous days. Returns per-tick frames (deaths and respawn
+    READY pauses included), eat times, the outcome, lives left and where he
+    was caught."""
+    memory = memory or {}
     inside = frozenset(house["cells"])
     cols = max(n[0] for n in graph)
     corners = [min(graph, key=lambda n: abs(n[0] - cx) + abs(n[1] - cy))
@@ -300,7 +320,7 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
     eaten_at: dict[tuple, int] = {}
     frames: list[dict] = []
     ghosts = [{} for _ in house["slots"]]
-    st = {"ghosts_eaten": 0, "deaths": 0}
+    st = {"ghosts_eaten": 0, "deaths": 0, "caught_at": []}
 
     def spawn(k0: int):
         """Everyone back in the house; ghosts released relative to tick k0."""
@@ -354,7 +374,8 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
             n = todo.popleft()
             for m in sorted(graph[n]):
                 t = depth[n] + 1
-                if m in prev or m in blocked or t + 1 >= ghost_eta.get(m, 999):
+                lead = policy["margin"] + policy["avoid"] * memory.get(m, 0) / 3  # remembered danger: keep further ahead
+                if m in prev or m in blocked or t + lead >= ghost_eta.get(m, 999):
                     continue
                 prev[m], depth[m] = n, t
                 todo.append(m)
@@ -365,11 +386,20 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
             return goal
 
         safe = [n for n in prev if n != pac]
+        close = ghost_eta.get(pac, 999) <= 6
+
+        def cost(n):  # nearer is better; remembered danger and (maybe) wasted power pellets cost extra
+            c = depth[n] + policy["avoid"] * memory.get(n, 0)
+            if policy["power"] and n in power:
+                c += -8 if close else 30
+            return c
+
         goals = [n for n in safe if n in prey] or [n for n in safe if n in left]
         if goals:
-            step = first_step(min(goals, key=lambda n: (depth[n], n)))
+            step = first_step(min(goals, key=lambda n: (cost(n), n)))
         elif safe:  # nothing safe to eat: head for the spot furthest from the ghosts
-            step = first_step(max(safe, key=lambda n: (ghost_eta.get(n, 999), -depth[n], n)))
+            step = first_step(max(safe, key=lambda n: (ghost_eta.get(n, 999) - policy["avoid"] * memory.get(n, 0),
+                                                       -depth[n], n)))
         else:  # cornered: best of a bad lot
             moves = [n for n in graph[pac] if n not in blocked] or [pac]
             step = max(sorted(moves), key=lambda n: ghost_eta.get(n, 999))
@@ -506,11 +536,13 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
         # --- Caught: freeze, collapse, then respawn in the house or GAME OVER.
         lives -= 1
         st["deaths"] += 1
+        st["caught_at"].append(pac)
         for _ in range(FREEZE_TICKS):
             snap()
         for j in range(len(PACMAN_DEATH)):
             snap(pac_look=f"die{j}", ghosts_hidden=True)
         if lives == 0:
+            snap(pac_look="hidden", ghosts_hidden=True)
             outcome = "over"
             break
         snap(pac_look="hidden", ghosts_hidden=True)  # everyone hops home unseen
@@ -519,10 +551,10 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int) -> dict:
             snap(sign="READY!")
 
     return {"frames": frames, "eaten_at": eaten_at, "outcome": outcome, "lives": lives,
-            "ghosts_eaten": st["ghosts_eaten"], "deaths": st["deaths"]}
+            "ghosts_eaten": st["ghosts_eaten"], "deaths": st["deaths"], "caught_at": st["caught_at"]}
 
 
-def play(weeks: list[list[dict]], seed: int):
+def play(weeks: list[list[dict]], seed: int, policy: dict = DEFAULT_POLICY, memory: dict | None = None):
     """Play up to three levels on fresh mazes, lives carrying over, until a
     GAME OVER (or TIME UP) or all three are cleared."""
     by_node = {(w, d["weekday"]): d for w, week in enumerate(weeks) for d in week}
@@ -534,7 +566,7 @@ def play(weeks: list[list[dict]], seed: int):
         rng = random.Random(seed * 10 + number)
         graph = grid_graph(weeks)
         walls = build_maze(graph, rng, house)
-        game = simulate(graph, house, pellets, power, rng, cfg, lives)
+        game = simulate(graph, house, pellets, power, rng, cfg, lives, policy, memory)
         lives = game["lives"]
         levels.append({"number": number, "walls": walls, "game": game})
         if game["outcome"] != "clear":
@@ -542,19 +574,72 @@ def play(weeks: list[list[dict]], seed: int):
     return house, pellets, power, levels
 
 
-def pick_seed(weeks: list[list[dict]], day_seed: int, tries: int = 12) -> int:
-    """Audition a dozen runs for the day and keep the most watchable: one that
-    climbs a level or two, eats some ghosts, and ends with the ghosts finally
-    catching Pac-Man (or a full three-level win), without dragging on."""
-    def score(seed: int) -> float:
-        *_, levels = play(weeks, seed)
-        last = levels[-1]["game"]["outcome"]
-        ticks = sum(len(lv["game"]["frames"]) for lv in levels)
-        ghosts = sum(lv["game"]["ghosts_eaten"] for lv in levels)
-        return (250 * len(levels) + 20 * min(ghosts, 8)
-                + 60 * (last == "over") + 100 * (last == "clear")
-                - 400 * (last == "time") - max(0, ticks - 1400))
-    return max((day_seed * 100 + j for j in range(tries)), key=score)
+def run_score(levels: list[dict]) -> float:
+    """How well a match went: levels cleared, then progress, ghosts and lives."""
+    last = levels[-1]["game"]
+    return (1000 * sum(lv["game"]["outcome"] == "clear" for lv in levels)
+            + 10 * len(last["eaten_at"]) + 15 * sum(lv["game"]["ghosts_eaten"] for lv in levels)
+            + 200 * last["lives"] - 500 * (last["outcome"] == "time"))
+
+
+def learn(weeks: list[list[dict]], seed: int) -> dict:
+    """Play up to MATCHES games on the day's mazes, Pac-Man learning after each:
+    he adds the spots where he was caught to his danger memory, then rehearses
+    the match in his head with a range of play styles and keeps the best. His
+    previous style is always among them, so he never plays worse than before."""
+    policy, memory = dict(DEFAULT_POLICY), {}
+    house, pellets, power, levels = play(weeks, seed, policy, memory)
+    matches = [{"policy": policy, "memory": {}, "levels": levels, "learned_from": 0, "score": run_score(levels)}]
+    for _ in range(MATCHES - 1):
+        prev = matches[-1]
+        memory = dict(prev["memory"])
+        for lv in prev["levels"]:
+            for cx, cy in lv["game"]["caught_at"]:
+                for dx in range(-MEMORY_RADIUS, MEMORY_RADIUS + 1):
+                    for dy in range(-MEMORY_RADIUS, MEMORY_RADIUS + 1):
+                        dist = abs(dx) + abs(dy)
+                        if dist <= MEMORY_RADIUS:
+                            n = (cx + dx, cy + dy)
+                            memory[n] = memory.get(n, 0) + 3 / (1 + dist)
+        margins = sorted({max(0, prev["policy"]["margin"] - 1), prev["policy"]["margin"],
+                          min(3, prev["policy"]["margin"] + 1)})
+        tried = [(prev["score"], False, prev["policy"], prev["levels"])]  # "just do it again"
+        for margin in margins:
+            for avoid in AVOID_STEPS:
+                for pw in (0, 1):
+                    cand = {"margin": margin, "avoid": avoid, "power": pw}
+                    *_, lv = play(weeks, seed, cand, memory)
+                    tried.append((run_score(lv), True, cand, lv))
+        # Best score wins. If nothing beats last time he's learned all he
+        # can from this maze, and the story ends there (no identical reruns).
+        score, _, policy, levels = max(tried, key=lambda x: (x[0], x[1]))
+        if score <= prev["score"]:
+            break
+        deaths = prev["learned_from"] + sum(lv["game"]["deaths"] for lv in prev["levels"])
+        matches.append({"policy": policy, "memory": memory, "levels": levels,
+                        "learned_from": deaths, "score": score})
+    return {"house": house, "pellets": pellets, "power": power, "matches": matches}
+
+
+def pick_run(weeks: list[list[dict]], day_seed: int, tries: int = 12, finalists: int = 3) -> tuple[int, dict]:
+    """Pick the day's game: audition rookie matches, keep a few where the
+    rookie struggles on level 1 or 2 (room to learn), let Pac-Man learn on
+    each, and keep the one where he improves most (a win is a bonus)."""
+    def rookie(seed: int) -> float:
+        *_, lv = play(weeks, seed)
+        last = lv[-1]["game"]
+        ticks = sum(len(x["game"]["frames"]) for x in lv)
+        return (300 * (len(lv) <= 2 and last["outcome"] == "over")
+                + len(last["eaten_at"]) - max(0, ticks - 900) / 10 - 500 * (last["outcome"] == "time"))
+    seeds = sorted((day_seed * 100 + j for j in range(tries)), key=rookie, reverse=True)[:finalists]
+    best = None
+    for seed in seeds:
+        data = learn(weeks, seed)
+        scores = [m["score"] for m in data["matches"]]
+        arc = scores[-1] - scores[0] + 300 * (data["matches"][-1]["levels"][-1]["game"]["outcome"] == "clear")
+        if best is None or arc > best[0]:
+            best = (arc, seed, data)
+    return best[1], best[2]
 
 
 # ---------------------------------------------------------------- drawing
@@ -621,7 +706,8 @@ class Timeline:
         return f'<animateMotion values="{vals}" keyTimes="{keys}" calcMode="linear" {self.loop}/>'
 
 
-def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], seed: int) -> str:
+def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], seed: int,
+           data: dict) -> str:
     ink, bg, accent, wall = theme["text"], theme["bg"], theme["key"], theme["value"]
     grid_w = len(weeks) * COL - (COL - CELL_W)
     width = PAD * 2 + grid_w
@@ -636,25 +722,30 @@ def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[st
         x, y = cell_xy(n)
         return x + CELL_W // 2, y + CELL_H // 2
 
-    # Play the run, then lay the levels end to end on one looping timeline.
-    house, pellets, power, levels = play(weeks, seed)
+    # Lay every match's levels end to end on one looping timeline.
+    house, pellets, power, matches = data["house"], data["pellets"], data["power"], data["matches"]
+    levels = []
     t = 0.0
-    for i, lv in enumerate(levels):
-        g = lv["game"]
-        lv["start"], lv["play"] = t, t + READY
-        lv["end"] = lv["play"] + (len(g["frames"]) - 1) * TICK
-        lv["tick"] = lambda k, lv=lv: lv["play"] + k * TICK
-        if g["outcome"] == "clear":  # maze flashes, then the next level (or the win)
-            lv["flash"] = (lv["end"] + 0.4, lv["end"] + 0.4 + WALL_FLASH)
-            t = lv["flash"][1] + JUMP
-        if i + 1 < len(levels):
-            lv["next"] = t
-    final = levels[-1]
-    outcome = final["game"]["outcome"]
-    result_at = final["end"] + 0.4  # a death's collapse is already in the frames
-    if outcome == "clear":
-        result_at = final["flash"][1]
-    dur = result_at + END_PAUSE
+    for m, match in enumerate(matches):
+        match["start"] = t
+        for i, src in enumerate(match["levels"]):
+            lv = {**src, "match": m, "last": i == len(match["levels"]) - 1}
+            g = lv["game"]
+            lv["start"], lv["play"] = t, t + READY
+            lv["end"] = lv["play"] + (len(g["frames"]) - 1) * TICK
+            lv["tick"] = lambda k, lv=lv: lv["play"] + k * TICK
+            if g["outcome"] == "clear":  # maze flashes, then the next level (or the win)
+                lv["flash"] = (lv["end"] + 0.4, lv["end"] + 0.4 + WALL_FLASH)
+            if lv["last"]:
+                match["outcome"] = g["outcome"]
+                match["result_at"] = lv["flash"][1] if "flash" in lv else lv["end"] + 0.4
+                match["end"] = t = match["result_at"] + END_PAUSE
+            else:
+                t = lv["flash"][1] + JUMP
+            levels.append(lv)
+    for a, b in zip(levels, levels[1:]):
+        a["next"] = b["start"]
+    dur = matches[-1]["end"]
     for lv in levels:
         lv["stop"] = lv.get("next", dur)
     tl = Timeline(dur)
@@ -808,9 +899,8 @@ def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[st
     others = list(PAC_COLOURS[name])
     random.Random(seed).shuffle(others)
     colours = [accent] + others[:COLOUR_CYCLE - 1]
-    recolour = (f'<animate attributeName="fill" values="{";".join(colours)}" '
-                f'keyTimes="{";".join(f"{j / len(colours):.5f}" for j in range(len(colours)))}" '
-                f'calcMode="discrete" dur="{dur * len(colours):.2f}s" repeatCount="indefinite"/>')
+    recolour = (f'<animate attributeName="fill" '
+                f'{tl.steps([(mt["start"], colours[m % len(colours)]) for m, mt in enumerate(matches)])}/>')
     out.append(f'<g fill="{accent}">{recolour}{tl.motion(times, pac_pts)}{body}</g>')
 
     # Spare lives: little Pac-Men above the maze's top-left corner.
@@ -838,19 +928,36 @@ def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[st
         ready += [(lv["tick"](k), f["sign"] == "READY!") for k, f in enumerate(lv["game"]["frames"]) if k]
         out.append(f'<text x="{PAD + grid_w}" y="{grid_top - 9}" text-anchor="end" font-size="11" '
                    f'font-weight="bold" fill="{ink}" opacity="0">LEVEL {lv["number"]}'
-                   f'{tl.show([(0, lv is levels[0]), (lv["start"], True), (lv["stop"], lv is final)])}</text>')
-        if "next" in lv:
+                   f'{tl.show([(0, lv is levels[0]), (lv["start"], True), (lv["stop"], lv is levels[-1])])}</text>')
+        if "flash" in lv and not lv["last"]:
             out.append(sign(f"LEVEL {lv['number']} CLEAR!", accent, [(0, False), (lv["flash"][0], True), (lv["next"], False)]))
     out.append(sign("READY!", accent, ready))
-    result, colour = {"over": ("GAME OVER", ink), "time": ("TIME UP", ink),
-                      "clear": ("YOU WIN!", accent)}[outcome]
-    out.append(sign(result, colour, [(0, False), (result_at, True)]))
+
+    for m, match in enumerate(matches):
+        last_match = m == len(matches) - 1
+        result, colour = {"over": ("GAME OVER", ink), "time": ("TIME UP", ink),
+                          "clear": ("YOU WIN!", accent)}[match["outcome"]]
+        out.append(sign(result, colour, [(0, False), (match["result_at"], True), (match["end"], last_match)]))
+        # Which match this is, and what he's learned so far (next to the spare lives).
+        note = f"MATCH {m + 1}" + (f" &#183; learned from {match['learned_from']} "
+                                   f"death{'s' * (match['learned_from'] != 1)}" if m else " &#183; rookie")
+        span = [(0, m == 0), (match["start"], True), (match["end"], last_match)]
+        out.append(f'<text x="{PAD + 8 + (LIVES - 1) * 18 + 4}" y="{grid_top - 9}" font-size="11" '
+                   f'font-weight="bold" fill="{ink}" opacity="0">{note}{tl.show(span)}</text>')
+        # His danger memory: small marks on the days he now steers clear of.
+        spots = [n for n, w in match["memory"].items() if w >= 1.5 and n in by_node and n not in house["cells"]]
+        if spots:
+            marks = "".join(f'<g transform="translate({centre(n)[0]},{centre(n)[1]})">'
+                            f'{pixel_art(DANGER_MARK, accent, 1)}</g>' for n in sorted(spots))
+            out.append(f'<g opacity="0">{tl.show(span)}<g opacity="0.8">{marks}</g></g>')
 
     out.append("</svg>")
-    summary = ", ".join(f"L{lv['number']} {lv['game']['outcome']} ({len(lv['game']['frames'])} ticks, "
-                        f"{lv['game']['ghosts_eaten']} ghosts, {lv['game']['deaths']} lives lost)"
-                        for lv in levels)
-    print(f"{name}: {summary}; loop {dur:.0f}s, colours {colours}")
+    for m, match in enumerate(matches):
+        runs = ", ".join(f"L{lv['number']} {lv['game']['outcome']} ({len(lv['game']['eaten_at'])} eaten, "
+                         f"{lv['game']['ghosts_eaten']} ghosts, {lv['game']['deaths']} lives lost)"
+                         for lv in match["levels"])
+        print(f"{name} match {m + 1} {match['policy']}: {runs}")
+    print(f"{name}: loop {dur:.0f}s, colours {colours[:len(matches)]}")
     return "\n".join(out) + "\n"
 
 
@@ -872,11 +979,14 @@ def main() -> None:
     stats = tiles(weeks, today)
     print("tiles:", stats)
 
-    # A new maze and game every day: the best of a dozen auditioned runs.
-    seed = args.seed if args.seed is not None else pick_seed(weeks, today.toordinal())
+    # A new maze and game every day: the rookie match plus MATCHES-1 learned ones.
+    if args.seed is not None:
+        seed, data = args.seed, learn(weeks, args.seed)
+    else:
+        seed, data = pick_run(weeks, today.toordinal())
     for name, theme in THEMES.items():
         path = ROOT / f"pacman_{name}.svg"
-        path.write_text(render(name, theme, weeks, stats, seed), encoding="utf-8")
+        path.write_text(render(name, theme, weeks, stats, seed, data), encoding="utf-8")
         print("wrote", path.name, f"({path.stat().st_size // 1024} KB)")
 
 
