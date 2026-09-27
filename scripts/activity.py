@@ -5,8 +5,9 @@ repositories created, pull requests...), month by month for the last few
 months, drawn in the WakaTime-dashboard look of the other cards: 1-bit dithered
 bars, stat tiles with a dithered strip, tiny labels. A pixel Mario climbs the
 timeline's vertical line from the oldest month to the newest, lighting each
-month up as he passes it, and reaches the flag at the top, where he gets hit:
-the classic Super Mario Bros. hop and fall off the bottom. Then he climbs again.
+month up as he passes it, and reaches the waving flag at the top, where a coin
+pops up and then he gets hit: the classic Super Mario Bros. hop and fall off
+the bottom. Then he climbs again.
 
 Data comes from the public activity fragment of github.com/<user> (what
 visitors see; no token needed).
@@ -16,6 +17,7 @@ Usage:
 """
 import calendar
 import html
+import math
 import re
 import sys
 import urllib.request
@@ -53,12 +55,14 @@ HOP, HOP_TIME = 28, 0.35
 GRAVITY = 1400             # px/s^2
 STEP = 0.18                # s per climbing frame
 MARIO_PX = 2
-# Mario wears the card's own palette, laid out like the NES original: cap (C)
-# and overalls (B) in the orange the months light up in, shirt and sleeves (R)
-# in muted grey, hair/eyes/moustache/shoes (H) in ink, skin (S) a faint ink
-# tone. Each part: (palette colour, opacity).
-MARIO_PARTS = {"C": ("lit", 1.0), "B": ("lit", 1.0), "R": ("grey", 1.0),
-               "H": ("ink", 1.0), "S": ("ink", 0.35)}
+# Mario, laid out like the NES original, in one family with the card: cap (C)
+# and overalls (B) in the card's orange, skin (S) a pale tint of it, hair/eyes/
+# moustache/shoes (H) a deep shade of it, shirt and sleeves (R) muted grey.
+# Dark hair, light skin in both themes, like the real sprite.
+MARIO_PALETTE = {
+    "dark": {"C": "#ffa657", "B": "#ffa657", "S": "#ffdcb8", "H": "#b35c1e", "R": "#8b949e"},
+    "light": {"C": "#953800", "B": "#953800", "S": "#f2b98b", "H": "#4a1d00", "R": "#6e7781"},
+}
 MARIO_CLIMB = [
     # Small Mario hugging the pole on his right, two climbing frames.
     ["....CCCCC...", "...CCCCCCCCC", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
@@ -75,10 +79,18 @@ MARIO_HIT = [  # facing us, arms flung up: the Super Mario Bros. "hit" pose
     ".HSSSSSSSSH.", "..SSHHHHSS..", "...SSSSSS...", "..RRBRRBRR..", ".RRRBBBBRRR.",
     ".RRBBBBBBRR.", "..BBBBBBBB..", "..BBB..BBB..", "..BBB..BBB..", ".HHH....HHH.",
     "HHHH....HHHH"]
-FLAG = ["#####", "####.", "###..", "##...", "#...."]
+# The flag: FLAG_W x FLAG_H cells of FLAG_PX, rippling in WAVE_FRAMES frames
+# (each column bobs a cell on a sine, pinned at the pole, loosest at the tip).
+FLAG_W, FLAG_H, FLAG_PX = 7, 4, 3
+WAVE_FRAMES, WAVE_TIME = 4, 0.8
+# The coin that pops when Mario reaches the top: spins (face, oval, edge) as it rises.
+COIN = [
+    ["..##..", ".####.", "######", "######", ".####.", "..##.."],
+    ["......", "..##..", "..##..", "..##..", "..##..", "......"],
+    ["......", "...#..", "...#..", "...#..", "...#..", "......"],
+]
+COIN_RISE, COIN_TIME, COIN_SPIN = 22, 0.5, 0.1
 
-# GitHub's muted grey, for Mario's overalls.
-MUTED = {"dark": "#8b949e", "light": "#6e7781"}
 
 
 # ---------------------------------------------------------------- data
@@ -161,11 +173,10 @@ def mario_art(rows: list[str], palette: dict, px: int = MARIO_PX) -> str:
     rects: dict[str, list[str]] = {}
     for y, row in enumerate(rows):
         for x, ch in enumerate(row):
-            if ch in MARIO_PARTS:
+            if ch in palette:
                 rects.setdefault(ch, []).append(
                     f'<rect x="{(x - w) * px}" y="{(y - h) * px}" width="{px}" height="{px}"/>')
-    return "".join(f'<g fill="{palette[MARIO_PARTS[c][0]]}" fill-opacity="{MARIO_PARTS[c][1]}">{"".join(r)}</g>'
-                   for c, r in rects.items())
+    return "".join(f'<g fill="{palette[c]}">{"".join(r)}</g>' for c, r in rects.items())
 
 
 def short(repo: str, owner: str = USER) -> str:
@@ -175,7 +186,7 @@ def short(repo: str, owner: str = USER) -> str:
 
 def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str:
     ink, bg, pole, lit = theme["text"], theme["bg"], theme["value"], theme["key"]
-    palette = {"ink": ink, "lit": lit, "grey": MUTED[name]}
+    palette = MARIO_PALETTE[name]
     right = WIDTH - PAD
     out: list[str] = []
     y = PAD
@@ -305,10 +316,32 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
                   f'{mario_art(MARIO_HIT, palette)}</g></g>')
     motion = tl.motion([k for k, _ in keys], [(LINE_X + 1, v + 16) for _, v in keys])
 
-    flag_y = pole_top
-    flag = (f'<g transform="translate({LINE_X + 2},{flag_y})">{pixel_art(FLAG, pole, 3)}</g>'
-            f'<g transform="translate({LINE_X + 2},{flag_y})" opacity="0">'
-            f'{tl.show([(0, False), (flag_at, True), (dur, True)])}{pixel_art(FLAG, ink, 3)}</g>')
+    # Waving flag: frames of a rippling rectangle, pole colour until Mario
+    # reaches it, then ink (the fill is animated; the frames inherit it).
+    wave = []
+    for f in range(WAVE_FRAMES):
+        cells = []
+        for c in range(FLAG_W):
+            bob = round(math.sin(2 * math.pi * (c / FLAG_W - f / WAVE_FRAMES)) * min(1, c / 3))
+            cells += [f'<rect x="{c * FLAG_PX}" y="{(r + bob) * FLAG_PX}" width="{FLAG_PX}" height="{FLAG_PX}"/>'
+                      for r in range(FLAG_H)]
+        keys = ";".join("1" if g == f else "0" for g in range(WAVE_FRAMES))
+        wave.append(f'<g opacity="0">{"".join(cells)}<animate attributeName="opacity" values="{keys}" '
+                    f'calcMode="discrete" dur="{WAVE_TIME}s" repeatCount="indefinite"/></g>')
+    flag = (f'<g transform="translate({LINE_X + 1},{pole_top})" fill="{pole}">'
+            f'<animate attributeName="fill" {tl.steps([(0, pole), (flag_at, ink), (dur, ink)])}/>'
+            f'{"".join(wave)}</g>')
+
+    # The coin: pops from the flag as Mario arrives, spins as it rises, then vanishes.
+    cx, cy = LINE_X + 1 + FLAG_W * FLAG_PX // 2, pole_top - 6
+    spins = int(COIN_TIME / COIN_SPIN) + 3
+    coin_frames = []
+    for j, art in enumerate(COIN):
+        shown = [(0, False)] + [(flag_at + k * COIN_SPIN, k % len(COIN) == j) for k in range(spins)]
+        shown.append((flag_at + spins * COIN_SPIN, False))
+        coin_frames.append(f'<g opacity="0">{tl.show(shown)}{pixel_art(art, lit, 2)}</g>')
+    coin = (f'<g>{tl.motion([flag_at, flag_at + COIN_TIME], [(cx, cy), (cx, cy - COIN_RISE)])}'
+            f'{"".join(coin_frames)}</g>')
 
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" viewBox="0 0 {WIDTH} {height}" '
@@ -319,6 +352,7 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
         f'<rect x="{LINE_X - 1}" y="{pole_top}" width="2" height="{bottom - pole_top}" fill="{pole}"/>',
         f'<rect x="{LINE_X - 3}" y="{pole_top - 4}" width="6" height="6" fill="{pole}"/>',
         flag,
+        coin,
         *(f'<rect x="{LINE_X - 4}" y="{ny - 4}" width="8" height="8" fill="{ink}"/>' for ny in nodes),
         *body,
         f"<g>{motion}{''.join(frames)}</g>",
