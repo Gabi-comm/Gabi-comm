@@ -2,7 +2,7 @@ name: Profile Card Update
 
 on:
   schedule:
-    - cron: '0 */6 * * *'   # every 6 hours, keeps the grid's "Today" tile fresh
+    - cron: '7 * * * *'   # hourly: grid + tiles track your contributions near real-time
   push:
     branches: [main]
     paths:
