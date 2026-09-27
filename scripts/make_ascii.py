@@ -1,13 +1,4 @@
-"""Turn assets/me.jpg into the ASCII portrait used on the profile card.
 
-Pipeline: cut the person out of the background (rembg human segmentation,
-cached to assets/me_mask.png), crop to head and shoulders, lift the shadowed face with
-large-tile CLAHE, sharpen, downsample to the character grid, and
-map brightness onto a glyph ramp. Background cells stay blank, like the sample.
-
-Run locally (needs: pip install "rembg[cpu]" opencv-python):
-    python scripts/make_ascii.py [--cols 80] [--preview out.png]
-"""
 import argparse
 from pathlib import Path
 
@@ -16,17 +7,14 @@ SRC = ROOT / "assets" / "me.jpg"
 MASK = ROOT / "assets" / "me_mask.png"
 OUT = ROOT / "assets" / "portrait.txt"
 
-# Sparse -> dense, with each glyph's measured ink coverage in a monospace font
-# (Consolas; relative to '@'). Pixels pick the glyph nearest their brightness,
-# so tone steps are even. Index 0 (space) is reserved for background, which
-# lets the light theme invert the rest.
+
 RAMP = " `.:~;=+?|)]oX#%&@"
 DENSITY = [0, .06, .10, .17, .24, .27, .30, .33, .35, .37, .40, .47, .53, .60, .67, .72, .81, 1.0]
 
-# Glyph cell aspect on the card: 0.6em wide / 1.155em line height.
+
 CELL_ASPECT = 0.52
 
-# Head-and-shoulders crop of me.jpg (x0, y0, x1, y1), px.
+
 BOX = (290, 190, 690, 590)
 
 
@@ -45,7 +33,6 @@ def load_mask(img):
 
 
 def convert(cols: int, box=BOX, gamma: float = 0.8, clahe: float = 2.0, sharpen: float = 0.3) -> list[str]:
-    # Imported here so profile_card.py can reuse RAMP without these installed.
     import cv2
     import numpy as np
 
@@ -55,8 +42,6 @@ def convert(cols: int, box=BOX, gamma: float = 0.8, clahe: float = 2.0, sharpen:
     img, mask = img[y0:y1, x0:x1], mask[y0:y1, x0:x1]
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # Large-tile CLAHE lifts the shadowed face against the bright shirt without
-    # amplifying grain the way small tiles do.
     gray = cv2.createCLAHE(clipLimit=clahe, tileGridSize=(3, 3)).apply(gray)
     blur = cv2.GaussianBlur(gray, (0, 0), 3)
     gray = cv2.addWeighted(gray, 1 + sharpen, blur, -sharpen, 0)  # unsharp mask
@@ -68,8 +53,6 @@ def convert(cols: int, box=BOX, gamma: float = 0.8, clahe: float = 2.0, sharpen:
     subject = alpha > 0.5
     lo, hi = np.percentile(small[subject], 1), np.percentile(small[subject], 99.5)
     norm = np.clip((small - lo) / (hi - lo), 0, 1) ** gamma
-
-    # Nearest glyph by ink density; subject cells never use the blank glyph.
     density = np.array(DENSITY[1:])
     target = density[0] + norm * (density[-1] - density[0])
     idx = 1 + np.abs(target[..., None] - density).argmin(axis=-1)
