@@ -47,15 +47,31 @@ POWER_PELLETS = 4          # biggest days become power pellets
 TICK = 0.24                # s per tick
 READY = 2.0                # s everyone sits in the ghost house first
 RELEASE = (0, 12, 24, 36)  # tick each ghost leaves the house
-CHASE = (0.6, 0.45, 0.35, 0.25)  # chance each ghost steps toward Pac-Man (else wanders)
 GHOST_FILLS = ("solid", "l3", "l2", "l1")
-FRIGHT = 28                # ticks ghosts stay blue after a power pellet
-FLASH = 8                  # ...flashing for the last ticks of that
+FLASH = 8                  # ghosts flash for the last ticks of their fright
 RESPAWN = 10               # ticks eaten ghosts wait in the house before rejoining
 DANGER = 3                 # Pac-Man dodges ghosts closer than this (steps)
 MAX_TICKS = 500            # stalemate cap (~2 min): TIME UP
 DEATH = 1.6                # s for Pac-Man's death animation
-END_PAUSE = 3.0            # s showing GAME OVER / STAGE CLEAR before the reset
+END_PAUSE = 3.0            # s showing GAME OVER / YOU WIN! before the reset
+WALL_FLASH = 1.6           # s the maze flashes after a level is cleared
+JUMP = 0.1                 # s sprites are hidden while they hop back to the house
+
+# Levels 1-3: a fresh maze each, ghosts keener (chase odds per ghost), quicker
+# (skip one tick in `slow`) and blue for less time (`fright` ticks).
+LEVEL_CFG = (
+    {"chase": (0.6, 0.45, 0.35, 0.25), "slow": 6, "fright": 28},
+    {"chase": (0.7, 0.55, 0.45, 0.35), "slow": 9, "fright": 22},
+    {"chase": (0.8, 0.65, 0.55, 0.45), "slow": 14, "fright": 16},
+)
+
+# Pac-Man's colour changes every time the game resets to level 1. SVG has no
+# runtime randomness, so each day bakes in a shuffled cycle of these.
+PAC_COLOURS = {
+    "dark": ("#ff7b72", "#d2a8ff", "#7ee787", "#79c0ff", "#f2cc60", "#ff9bce", "#56d4dd"),
+    "light": ("#cf222e", "#8250df", "#1a7f37", "#0969da", "#9a6700", "#bf3989", "#1b7c83"),
+}
+COLOUR_CYCLE = 6           # resets before the colour sequence repeats
 
 LEVELS = {"NONE": 0, "FIRST_QUARTILE": 1, "SECOND_QUARTILE": 2,
           "THIRD_QUARTILE": 3, "FOURTH_QUARTILE": 4}
@@ -261,8 +277,8 @@ def distances(graph: dict[tuple, set], start: tuple) -> dict[tuple, int]:
 
 # ---------------------------------------------------------------- game
 
-def simulate(graph, house, pellets, power, rng) -> dict:
-    """Play one game. Returns per-tick frames plus eat times and the outcome."""
+def simulate(graph, house, pellets, power, rng, cfg: dict) -> dict:
+    """Play one level. Returns per-tick frames plus eat times and the outcome."""
     inside = frozenset(house["cells"])
     pac, facing = house["start"], (1, 0)
     ghosts = [{"at": s, "prev": s, "mode": "house", "release": r, "scared": False}
@@ -321,7 +337,7 @@ def simulate(graph, house, pellets, power, rng) -> dict:
             left.discard(pac)
             eaten_at[pac] = k
             if pac in power:
-                fright_until = k + FRIGHT
+                fright_until = k + cfg["fright"]
                 for g in ghosts:
                     g["scared"] = g["mode"] != "eyes"
         if k >= fright_until:
@@ -357,9 +373,9 @@ def simulate(graph, house, pellets, power, rng) -> dict:
                 away = distances(graph, pac)
                 g["at"] = max(options, key=lambda n: (away.get(n, 0), rng.random()))
                 continue
-            if k % 6 == 5:  # a touch slower than Pac-Man
+            if k % cfg["slow"] == cfg["slow"] - 1:  # a touch slower than Pac-Man
                 continue
-            if rng.random() < CHASE[i]:
+            if rng.random() < cfg["chase"][i]:
                 path = bfs(graph, g["at"], pac, inside)
                 g["at"] = path[1] if path and len(path) > 1 else g["at"]
             else:
@@ -390,29 +406,35 @@ def simulate(graph, house, pellets, power, rng) -> dict:
 
 
 def play(weeks: list[list[dict]], seed: int):
-    """Build the maze and play the game for a seed (deterministic)."""
+    """Play up to three levels, each on a fresh maze, stopping at the first non-clear."""
     by_node = {(w, d["weekday"]): d for w, week in enumerate(weeks) for d in week}
-    rng = random.Random(seed)
-    graph = grid_graph(weeks)
     house = ghost_house(weeks)
-    walls = build_maze(graph, rng, house)
     pellets = {n for n, d in by_node.items() if d["count"] and n not in house["cells"]}
     power = set(sorted(pellets, key=lambda n: (-by_node[n]["count"], n))[:POWER_PELLETS])
-    return house, walls, pellets, power, simulate(graph, house, pellets, power, rng)
+    levels = []
+    for number, cfg in enumerate(LEVEL_CFG, 1):
+        rng = random.Random(seed * 10 + number)
+        graph = grid_graph(weeks)
+        walls = build_maze(graph, rng, house)
+        game = simulate(graph, house, pellets, power, rng, cfg)
+        levels.append({"number": number, "walls": walls, "game": game})
+        if game["outcome"] != "clear":
+            break
+    return house, pellets, power, levels
 
 
 def pick_seed(weeks: list[list[dict]], day_seed: int, tries: int = 12) -> int:
-    """Audition a dozen games for the day and keep the most watchable one:
-    a decent length, a power pellet and some ghost-eating, ideally ending with
-    the ghosts finally catching Pac-Man."""
+    """Audition a dozen runs for the day and keep the most watchable: one that
+    climbs a level or two, eats some ghosts, and ends with the ghosts finally
+    catching Pac-Man (or a full three-level win), without dragging on."""
     def score(seed: int) -> float:
-        _, _, pellets, power, g = play(weeks, seed)
-        ticks = len(g["frames"])
-        return (min(ticks, 320) - max(0, ticks - 420)
-                + 60 * min(g["ghosts_eaten"], 3)
-                + 40 * (any(n in g["eaten_at"] for n in power))
-                + 80 * (g["outcome"] == "over") + 40 * (g["outcome"] == "clear")
-                - 200 * (g["outcome"] == "time"))
+        *_, levels = play(weeks, seed)
+        last = levels[-1]["game"]["outcome"]
+        ticks = sum(len(lv["game"]["frames"]) for lv in levels)
+        ghosts = sum(lv["game"]["ghosts_eaten"] for lv in levels)
+        return (250 * len(levels) + 20 * min(ghosts, 8)
+                + 60 * (last == "over") + 100 * (last == "clear")
+                - 400 * (last == "time") - max(0, ticks - 1100))
     return max((day_seed * 100 + j for j in range(tries)), key=score)
 
 
@@ -453,7 +475,7 @@ class Timeline:
         self.loop = f'dur="{dur:.2f}s" repeatCount="indefinite"'
 
     def key(self, t: float) -> str:
-        return f"{min(max(t / self.dur, 0), 1):.4f}"
+        return f"{min(max(t / self.dur, 0), 1):.5f}"
 
     def steps(self, changes: list[tuple[float, str]]) -> str:
         """Discrete values from (time, value) change points; first must be at 0."""
@@ -480,7 +502,7 @@ class Timeline:
         return f'<animateMotion values="{vals}" keyTimes="{keys}" calcMode="linear" {self.loop}/>'
 
 
-def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], seed: int) -> str:
+def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], seed: int) -> str:
     ink, bg, accent, wall = theme["text"], theme["bg"], theme["key"], theme["value"]
     grid_w = len(weeks) * COL - (COL - CELL_W)
     width = PAD * 2 + grid_w
@@ -495,17 +517,28 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
         x, y = cell_xy(n)
         return x + CELL_W // 2, y + CELL_H // 2
 
-    # Maze, pellets, and one simulated game.
-    house, walls, pellets, power, game = play(weeks, seed)
-    frames, eaten_at = game["frames"], game["eaten_at"]
-    last = len(frames) - 1
-
-    def at(k: float) -> float:  # tick -> seconds into the loop
-        return READY + k * TICK
-
-    end_play = at(last)
-    died = game["outcome"] == "over"
-    dur = end_play + (DEATH if died else 0) + END_PAUSE
+    # Play the run, then lay the levels end to end on one looping timeline.
+    house, pellets, power, levels = play(weeks, seed)
+    t = 0.0
+    for i, lv in enumerate(levels):
+        g = lv["game"]
+        lv["start"], lv["play"] = t, t + READY
+        lv["end"] = lv["play"] + (len(g["frames"]) - 1) * TICK
+        lv["tick"] = lambda k, lv=lv: lv["play"] + k * TICK
+        if g["outcome"] == "clear":  # maze flashes, then the next level (or the win)
+            lv["flash"] = (lv["end"] + 0.4, lv["end"] + 0.4 + WALL_FLASH)
+            t = lv["flash"][1] + JUMP
+        if i + 1 < len(levels):
+            lv["next"] = t
+    final = levels[-1]
+    outcome = final["game"]["outcome"]
+    died = outcome == "over"
+    result_at = final["end"] + (DEATH if died else 0.4)
+    if outcome == "clear":
+        result_at = final["flash"][1]
+    dur = result_at + END_PAUSE
+    for lv in levels:
+        lv["stop"] = lv.get("next", dur)
     tl = Timeline(dur)
 
     out = [
@@ -535,27 +568,40 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
         out.append(f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" fill="{floor}" pointer-events="all">'
                    f'<title>{d["date"]:%b %d}: {c} contribution{"s" * (c != 1)}</title></rect>')
 
-    # Maze: outer frame plus a 2px wall in the gutter for every knocked-out edge.
+    # Maze: the outer frame is fixed; each level has its own walls, which
+    # flash when it's cleared and then give way to the next level's.
     fx, fy = PAD - 3, grid_top - 3
     out.append(f'<rect x="{fx}" y="{fy}" width="{grid_w + 6}" height="{7 * ROW - (ROW - CELL_H) + 6}" '
                f'fill="none" stroke="{wall}" stroke-width="2"/>')
-    bars = []
-    for edge in walls:
-        a, b = sorted(edge)
-        x, y = cell_xy(a)
-        if a[0] != b[0]:   # side by side: vertical bar
-            bars.append(f'<rect x="{x + CELL_W + 1}" y="{y - 2}" width="2" height="{ROW}"/>')
-        else:              # stacked: horizontal bar
-            bars.append(f'<rect x="{x - 2}" y="{y + CELL_H + 1}" width="{COL}" height="2"/>')
-    out.append(f'<g fill="{wall}">{"".join(bars)}</g>')
     door = "".join(f'<rect x="{cell_xy(min(e))[0] - 2}" y="{cell_xy(min(e))[1] + CELL_H + 1}" '
                    f'width="{COL}" height="2"/>' for e in house["doors"])
     out.append(f'<g fill="{ink}" opacity="0.55">{door}</g>')
+    for lv in levels:
+        bars = []
+        for edge in lv["walls"]:
+            a, b = sorted(edge)
+            x, y = cell_xy(a)
+            if a[0] != b[0]:   # side by side: vertical bar
+                bars.append(f'<rect x="{x + CELL_W + 1}" y="{y - 2}" width="2" height="{ROW}"/>')
+            else:              # stacked: horizontal bar
+                bars.append(f'<rect x="{x - 2}" y="{y + CELL_H + 1}" width="{COL}" height="2"/>')
+        shown = [(0, lv is levels[0]), (lv["start"], True)]
+        if "flash" in lv:
+            f0, f1 = lv["flash"]
+            shown += [(f0 + j * 0.2, j % 2 == 1) for j in range(int(WALL_FLASH / 0.2))] + [(f1, True)]
+        if "next" in lv:
+            shown.append((lv["next"], False))
+        out.append(f'<g fill="{wall}" opacity="0">{tl.show(shown)}{"".join(bars)}</g>')
 
-    # Pellets vanish when eaten; uneaten ones survive a GAME OVER.
+    # Pellets: refilled at the start of every level, gone once eaten.
     for n in sorted(pellets):
         x, y = cell_xy(n)
-        gone = tl.show([(0, True), (at(eaten_at[n]), False)]) if n in eaten_at else ""
+        shown = [(0, True)]
+        for lv in levels:
+            shown.append((lv["start"], True))
+            if n in lv["game"]["eaten_at"]:
+                shown.append((lv["tick"](lv["game"]["eaten_at"][n]), False))
+        gone = tl.show(shown)
         if n in power:
             blink = 'dur="0.8s" values="1;0.25" calcMode="discrete" repeatCount="indefinite"'
             out.append(f'<g>{gone}<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" fill="url(#l1)"/>'
@@ -577,46 +623,77 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
             out.append(f'<text x="{PAD + w * COL}" y="{grid_top + 7 * ROW + 12}" font-size="10" '
                        f'fill="{ink}" opacity="0.75">{month:%b}</text>')
 
-    times = [at(k) for k in range(len(frames))]
+    def track(get) -> tuple[list[float], list]:
+        """Times + values of one sprite across all levels, holding in the house
+        through READY and hopping back (while hidden) between levels."""
+        times, vals = [], []
+        for lv in levels:
+            frames = lv["game"]["frames"]
+            times.append(lv["start"])
+            vals.append(get(frames[0], 0))
+            for k, f in enumerate(frames):
+                times.append(lv["tick"](k))
+                vals.append(get(f, k))
+            if "next" in lv:
+                times.append(lv["next"] - JUMP)
+                vals.append(vals[-1])
+        return times, vals
 
-    # Ghosts: one moving group each, four looks switched per tick.
+    # Ghosts: one moving group each, four looks switched per tick; hidden while the maze flashes.
     for i, fill in enumerate(GHOST_FILLS):
-        pts = []
-        for k, f in enumerate(frames):
+        def ghost_pos(f, k, i=i):
             x, y = centre(f["ghosts"][i][0])
-            bob = -2 if f["ghosts"][i][2] and k % 4 >= 2 else 0  # bob while waiting in the house
-            pts.append((x, y + bob))
-        looks = [(times[k] if k else 0, f["ghosts"][i][1]) for k, f in enumerate(frames)]
+            return x, y - 2 if f["ghosts"][i][2] and k % 4 >= 2 else y  # bob while in the house
+        times, pts = track(ghost_pos)
+        looks = []
+        for lv in levels:
+            frames = lv["game"]["frames"]
+            looks.append((lv["start"], frames[0]["ghosts"][i][1]))
+            looks += [(lv["tick"](k), f["ghosts"][i][1]) for k, f in enumerate(frames) if k]
+            if "flash" in lv:
+                looks.append((lv["flash"][0], "hidden"))
+        looks[0] = (0, looks[0][1])
         paint = ink if fill == "solid" else f"url(#{fill})"
         sprites = {"normal": pixel_art(GHOST, paint), "scared": pixel_art(GHOST_SCARED, wall),
                    "flash": pixel_art(GHOST_SCARED, ink), "eyes": pixel_art(GHOST_EYES, ink)}
         out.append("<g>" + tl.motion(times, pts) + "".join(
-            f'<g>{art}{tl.show([(t, look == name) for t, look in looks])}</g>' for name, art in sprites.items()
+            f'<g>{art}{tl.show([(t, look == nm) for t, look in looks])}</g>' for nm, art in sprites.items()
         ) + "</g>")
 
-    # Pac-Man: chomping frames, turned to face travel; collapses on GAME OVER.
-    pac_pts = [centre(f["pac"]) for f in frames]
-    turns = [(times[k] if k else 0, str(ANGLE[f["facing"]])) for k, f in enumerate(frames)]
+    # Pac-Man: chomping frames turned to face travel; a new colour every reset
+    # to level 1 (the colour animation spans COLOUR_CYCLE loops).
+    times, pac_pts = track(lambda f, k: centre(f["pac"]))
+    _, facings = track(lambda f, k: str(ANGLE[f["facing"]]))
+    turns = list(zip([0.0] + times[1:], facings))
+    alive = [(0, True)]
+    for lv in levels:
+        alive.append((lv["start"], True))
+        if "next" in lv:
+            alive.append((lv["next"] - JUMP, False))
+    if died:
+        alive.append((final["end"], False))
     chomp = 'dur="0.36s" repeatCount="indefinite" calcMode="discrete"'
-    alive = tl.show([(0, True), (end_play, False)]) if died else ""
-    body = (f'<g>{alive}<g><animateTransform attributeName="transform" type="rotate" {tl.steps(turns)}/>'
-            f'<g>{pixel_art(PACMAN_OPEN, accent)}<animate attributeName="opacity" values="1;0" {chomp}/></g>'
-            f'<g>{pixel_art(PACMAN_SHUT, accent)}<animate attributeName="opacity" values="0;1" {chomp}/></g>'
+    body = (f'<g>{tl.show(alive)}<g><animateTransform attributeName="transform" type="rotate" {tl.steps(turns)}/>'
+            f'<g>{pixel_art(PACMAN_OPEN, "inherit")}<animate attributeName="opacity" values="1;0" {chomp}/></g>'
+            f'<g>{pixel_art(PACMAN_SHUT, "inherit")}<animate attributeName="opacity" values="0;1" {chomp}/></g>'
             f'</g></g>')
     if died:
         step = DEATH / len(PACMAN_DEATH)
         body += "".join(
-            f'<g opacity="0">{pixel_art(art, accent)}'
-            f'{tl.show([(0, False), (end_play + j * step, True), (end_play + (j + 1) * step, False)])}</g>'
+            f'<g opacity="0">{pixel_art(art, "inherit")}'
+            f'{tl.show([(0, False), (final["end"] + j * step, True), (final["end"] + (j + 1) * step, False)])}</g>'
             for j, art in enumerate(PACMAN_DEATH))
-    out.append("<g>" + tl.motion(times, pac_pts) + body + "</g>")
+    others = list(PAC_COLOURS[name])
+    random.Random(seed).shuffle(others)
+    colours = [accent] + others[:COLOUR_CYCLE - 1]
+    recolour = (f'<animate attributeName="fill" values="{";".join(colours)}" '
+                f'keyTimes="{";".join(f"{j / len(colours):.5f}" for j in range(len(colours)))}" '
+                f'calcMode="discrete" dur="{dur * len(colours):.2f}s" repeatCount="indefinite"/>')
+    out.append(f'<g fill="{accent}">{recolour}{tl.motion(times, pac_pts)}{body}</g>')
 
-    # Signs under the ghost house: READY! at the start, the result at the end.
+    # Signs under the ghost house, and the level number above the maze.
     hx = cell_xy(min(house["cells"]))[0] + HOUSE_W * COL // 2 - 2
     hy = cell_xy(max(house["cells"]))[1] + ROW + CELL_H // 2 + 4
-    result_at = end_play + (DEATH if died else 0)
-    result, colour = {"over": ("GAME OVER", ink), "time": ("TIME UP", ink),
-                      "clear": ("STAGE CLEAR!", accent)}[game["outcome"]]
 
     def sign(text: str, fill: str, shown: list[tuple[float, bool]]) -> str:
         w = len(text) * 7.2 + 12  # plate so the text sits cleanly over the maze
@@ -625,13 +702,23 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
                 f'<text x="{hx}" y="{hy}" text-anchor="middle" font-size="12" font-weight="bold" '
                 f'fill="{fill}">{text}</text></g>')
 
-    out.append(sign("READY!", accent, [(0, True), (READY, False)]))
+    ready = [(0, True)]
+    for lv in levels:
+        ready += [(lv["start"], True), (lv["play"], False)]
+        out.append(f'<text x="{PAD + grid_w}" y="{grid_top - 9}" text-anchor="end" font-size="11" '
+                   f'font-weight="bold" fill="{ink}" opacity="0">LEVEL {lv["number"]}'
+                   f'{tl.show([(0, lv is levels[0]), (lv["start"], True), (lv["stop"], lv is final)])}</text>')
+        if "next" in lv:
+            out.append(sign(f"LEVEL {lv['number']} CLEAR!", accent, [(0, False), (lv["flash"][0], True), (lv["next"], False)]))
+    out.append(sign("READY!", accent, ready))
+    result, colour = {"over": ("GAME OVER", ink), "time": ("TIME UP", ink),
+                      "clear": ("YOU WIN!", accent)}[outcome]
     out.append(sign(result, colour, [(0, False), (result_at, True)]))
 
     out.append("</svg>")
-    print(f"maze: {len(walls)} walls, {len(pellets)} pellets ({len(power)} power); "
-          f"game: {game['outcome']} after {last} ticks, ate {len(eaten_at)}/{len(pellets)} pellets "
-          f"and {game['ghosts_eaten']} ghosts, loop {dur:.0f}s")
+    summary = ", ".join(f"L{lv['number']} {lv['game']['outcome']} ({len(lv['game']['frames'])} ticks, "
+                        f"{lv['game']['ghosts_eaten']} ghosts)" for lv in levels)
+    print(f"{name}: {summary}; loop {dur:.0f}s, colours {colours}")
     return "\n".join(out) + "\n"
 
 
@@ -653,11 +740,11 @@ def main() -> None:
     stats = tiles(weeks, today)
     print("tiles:", stats)
 
-    # A new maze and game every day: the best of a dozen auditioned games.
+    # A new maze and game every day: the best of a dozen auditioned runs.
     seed = args.seed if args.seed is not None else pick_seed(weeks, today.toordinal())
     for name, theme in THEMES.items():
         path = ROOT / f"pacman_{name}.svg"
-        path.write_text(render(theme, weeks, stats, seed), encoding="utf-8")
+        path.write_text(render(name, theme, weeks, stats, seed), encoding="utf-8")
         print("wrote", path.name, f"({path.stat().st_size // 1024} KB)")
 
 
