@@ -5,3 +5,5 @@ dark_mode.svg -merge linguist-generated
 light_mode.svg -merge linguist-generated
 pacman_dark.svg -merge linguist-generated
 pacman_light.svg -merge linguist-generated
+activity_dark.svg -merge linguist-generated
+activity_light.svg -merge linguist-generated
