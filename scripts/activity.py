@@ -72,6 +72,10 @@ MARIO_HIT = [  # facing us, arms flung up: the Super Mario Bros. "hit" pose
     "HHHH....HHHH"]
 FLAG = ["#####", "####.", "###..", "##...", "#...."]
 
+# Months light up in GitHub's contribution green as Mario passes them: it sits
+# well beside the card's blue and stands clear of the grey ink in both themes.
+LIT = {"dark": "#7ee787", "light": "#1a7f37"}
+
 
 # ---------------------------------------------------------------- data
 
@@ -164,8 +168,8 @@ def short(repo: str, owner: str = USER) -> str:
     return name if len(name) <= 34 else name[:33] + "…"
 
 
-def render(theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str:
-    ink, bg, accent, pole = theme["text"], theme["bg"], theme["key"], theme["value"]
+def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str:
+    ink, bg, pole = theme["text"], theme["bg"], theme["value"]
     right = WIDTH - PAD
     out: list[str] = []
     y = PAD
@@ -173,7 +177,7 @@ def render(theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str
     # Title and stat tiles.
     out.append(f'<text x="{PAD}" y="{y + 12}" font-size="15" font-weight="bold" fill="{ink}">Contribution activity</text>'
                f'<text x="{right}" y="{y + 12}" text-anchor="end" font-size="10" fill="{ink}" opacity="0.6">'
-               f'last {MONTHS} months &#183; live from github.com</text>')
+               f'last {MONTHS} months</text>')
     y += 26
     tile_w = (right - PAD) / len(stats)
     for i, (value, label) in enumerate(stats):
@@ -270,12 +274,12 @@ def render(theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str
     dur = t + 0.6  # a beat off-screen before he climbs again
     tl = Timeline(dur)
 
-    # Months light up (accent) as Mario reaches them, until the loop restarts.
+    # Months light up (LIT green) as Mario reaches them, until the loop restarts.
     for mi, at in reached.items():
         old = f'<text class="m{mi}"'
         i = next(j for j, b in enumerate(body) if old in b)
         label_el = re.search(r'<text class="m%d".*?</text>' % mi, body[i]).group(0)
-        lit = (label_el.replace(f'fill="{ink}"', f'fill="{accent}" opacity="0"')
+        lit = (label_el.replace(f'fill="{ink}"', f'fill="{LIT[name]}" opacity="0"')
                .replace("</text>", tl.show([(0, False), (at, True)]) + "</text>"))
         body[i] = body[i].replace(label_el, label_el + lit)
 
@@ -331,7 +335,7 @@ def main() -> None:
     print("tiles:", stats)
     for name, theme in THEMES.items():
         path = ROOT / f"activity_{name}.svg"
-        path.write_text(render(theme, months, stats), encoding="utf-8")
+        path.write_text(render(name, theme, months, stats), encoding="utf-8")
         print("wrote", path.name, f"({path.stat().st_size // 1024} KB)")
 
 
