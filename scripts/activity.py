@@ -53,23 +53,25 @@ HOP, HOP_TIME = 28, 0.35
 GRAVITY = 1400             # px/s^2
 STEP = 0.18                # s per climbing frame
 MARIO_PX = 2
-# Mario wears the card's own palette: cap and shirt in the orange the months
-# light up in, overalls in muted grey, hair and shoes in ink, skin a faint ink
+# Mario wears the card's own palette, laid out like the NES original: cap (C)
+# and overalls (B) in the orange the months light up in, shirt and sleeves (R)
+# in muted grey, hair/eyes/moustache/shoes (H) in ink, skin (S) a faint ink
 # tone. Each part: (palette colour, opacity).
-MARIO_PARTS = {"R": ("lit", 1.0), "B": ("grey", 1.0), "H": ("ink", 1.0), "S": ("ink", 0.35)}
+MARIO_PARTS = {"C": ("lit", 1.0), "B": ("lit", 1.0), "R": ("grey", 1.0),
+               "H": ("ink", 1.0), "S": ("ink", 0.35)}
 MARIO_CLIMB = [
     # Small Mario hugging the pole on his right, two climbing frames.
-    ["....RRRRR...", "...RRRRRRRRR", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
+    ["....CCCCC...", "...CCCCCCCCC", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
      "..HHSSSSHHH.", "....SSSSSSS.", "...RRBRRRSS.", "..RRRBRRBSS.", "..RRRBBBBR..",
      "..SSRBBBBB..", "..SSBBBBBB..", "...BBBBBB...", "...BBB.BBB..", "..HHH..HHH..",
      ".HHHH...HHH."],
-    ["....RRRRR...", "...RRRRRRRRR", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
+    ["....CCCCC...", "...CCCCCCCCC", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
      "..HHSSSSHHH.", "....SSSSSSSS", "...RRBRRR.SS", "..RRRBRRB...", ".SRRRBBBBR..",
      ".SSRBBBBBB..", "..SBBBBBBB..", "...BBBBBB...", "..BBB..BBB..", ".HHH...HHH..",
      ".HHHH...HHH."],
 ]
 MARIO_HIT = [  # facing us, arms flung up: the Super Mario Bros. "hit" pose
-    ".SS......SS.", ".SS.RRRR.SS.", "..RRRRRRRR..", "..HHSHHSHH..", ".HSSHSSHSSH.",
+    ".SS......SS.", ".SS.CCCC.SS.", "..CCCCCCCC..", "..HHSHHSHH..", ".HSSHSSHSSH.",
     ".HSSSSSSSSH.", "..SSHHHHSS..", "...SSSSSS...", "..RRBRRBRR..", ".RRRBBBBRRR.",
     ".RRBBBBBBRR.", "..BBBBBBBB..", "..BBB..BBB..", "..BBB..BBB..", ".HHH....HHH.",
     "HHHH....HHHH"]
