@@ -34,7 +34,9 @@ WIDTH = 900
 # Layout (px).
 TILE_H = 52
 LINE_X = PAD + 30          # the timeline / Mario's pole
-TEXT_X = LINE_X + 22
+TEXT_X = LINE_X + 22      # month names; item boxes sit here too, clear of the line
+ITEM_X = TEXT_X + 18       # "Created ..." summaries, right of their box
+ROW_X = ITEM_X + 14        # repo rows under a summary
 HEADER_H = 30
 SUMMARY_H = 24
 ROW_H = 18
@@ -203,21 +205,20 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
                     f'<rect x="{TEXT_X + lw + 10:.0f}" y="{ny}" width="{right - TEXT_X - lw - 10:.0f}" height="2" fill="url(#l1)"/>')
         y += HEADER_H
         if not mo["items"]:
-            body.append(f'<text x="{TEXT_X}" y="{y + 14}" font-size="11" fill="{ink}" opacity="0.6">'
+            body.append(f'<text x="{ITEM_X}" y="{y + 14}" font-size="11" fill="{ink}" opacity="0.6">'
                         f'No activity this month</text>')
             y += SUMMARY_H
         for it in mo["items"]:
             by = y + SUMMARY_H // 2
-            body.append(f'<rect x="{LINE_X - 7}" y="{by - 7}" width="14" height="14" fill="{bg}"/>'
-                        f'<rect x="{LINE_X - 5}" y="{by - 5}" width="10" height="10" fill="url(#l2)"/>'
-                        f'<text x="{TEXT_X}" y="{by + 4}" font-size="12.5" fill="{ink}">{escape(it["summary"])}</text>')
+            body.append(f'<rect x="{TEXT_X}" y="{by - 5}" width="10" height="10" fill="url(#l2)"/>'
+                        f'<text x="{ITEM_X}" y="{by + 4}" font-size="12.5" fill="{ink}">{escape(it["summary"])}</text>')
             y += SUMMARY_H
             rows = it["rows"]
             top = max((r["count"] or 0) for r in rows) if rows else 0
             total = sum(r["count"] or 0 for r in rows)
             for r in rows[:MAX_ROWS]:
                 ry = y + ROW_H // 2 + 4
-                body.append(f'<text x="{TEXT_X + 14}" y="{ry}" font-size="11" fill="{pole}">{escape(short(r["repo"]))}</text>')
+                body.append(f'<text x="{ROW_X}" y="{ry}" font-size="11" fill="{pole}">{escape(short(r["repo"]))}</text>')
                 if r["count"] is not None:
                     share = r["count"] / total if total else 0
                     fill = ink if share >= 0.4 else "url(#l3)" if share >= 0.2 else "url(#l2)" if share >= 0.1 else "url(#l1)"
@@ -233,7 +234,7 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
                                     f'fill="{ink}" opacity="0.75">{meta}</text>')
                 y += ROW_H
             if len(rows) > MAX_ROWS:
-                body.append(f'<text x="{TEXT_X + 14}" y="{y + ROW_H // 2 + 4}" font-size="11" fill="{ink}" '
+                body.append(f'<text x="{ROW_X}" y="{y + ROW_H // 2 + 4}" font-size="11" fill="{ink}" '
                             f'opacity="0.6">+{len(rows) - MAX_ROWS} more</text>')
                 y += ROW_H
             y += 4
