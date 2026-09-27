@@ -38,14 +38,14 @@ GRAVITY = 1400
 STEP = 0.18                
 MARIO_PX = 2
 
-# Mario dressed like the photo (assets/me.jpg): black hair (K), light tan skin (S),
+# Mario dressed like the photo (assets/me.jpg): black hair (K), fair skin (S),
 # dark eyes (E), white shirt (W), navy tie (T), dark trousers (P), shoes (F).
 # The darkest tones are lifted a little on the dark card and the white shirt is
 # softened on the light card, so nothing vanishes into the background.
 MARIO_PALETTE = {
-    "dark": {"K": "#4a515b", "S": "#e0bb8e", "E": "#1f2328", "W": "#f0f3f6",
+    "dark": {"K": "#4a515b", "S": "#ffe2cc", "E": "#1f2328", "W": "#f0f3f6",
              "T": "#3d5ab8", "P": "#3a4350", "F": "#5a626d"},
-    "light": {"K": "#1f2328", "S": "#e0bb8e", "E": "#1f2328", "W": "#d8dee4",
+    "light": {"K": "#1f2328", "S": "#f6cdb0", "E": "#1f2328", "W": "#d8dee4",
               "T": "#1f3a8a", "P": "#2d333b", "F": "#1f2328"},
 }
 MARIO_CLIMB = [
