@@ -877,9 +877,15 @@ def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[st
     # when caught; a new colour every reset to level 1 (the colour animation
     # spans COLOUR_CYCLE loops).
     times, pac_pts = track(lambda f, k: centre(f["pac"]))
-    _, facings = track(lambda f, k: str(ANGLE[f["facing"]]))
     _, pac_looks = track(lambda f, k: f["pac_look"])
-    turns = list(zip([0.0] + times[1:], facings))
+    # A frame's facing is the direction of the step that *ends* on that tick,
+    # so turn him as that step begins (the tick before): his mouth leads the
+    # way through the whole move instead of catching up on arrival.
+    turns = [(0.0, str(ANGLE[levels[0]["game"]["frames"][0]["facing"]]))]
+    for lv in levels:
+        frames = lv["game"]["frames"]
+        turns.append((lv["start"], str(ANGLE[frames[0]["facing"]])))
+        turns += [(lv["tick"](k - 1), str(ANGLE[f["facing"]])) for k, f in enumerate(frames) if k]
     looks = list(zip([0.0] + times[1:], pac_looks))
     for lv in levels:  # hidden for the hop back to the house between levels
         if "next" in lv:
