@@ -5,7 +5,8 @@ repositories created, pull requests...), month by month for the last few
 months, drawn in the WakaTime-dashboard look of the other cards: 1-bit dithered
 bars, stat tiles with a dithered strip, tiny labels. A pixel Mario climbs the
 timeline's vertical line from the oldest month to the newest, lighting each
-month up as he passes it, and reaches the flag at the top. Then he starts over.
+month up as he passes it, and reaches the flag at the top, where he gets hit:
+the classic Super Mario Bros. hop and fall off the bottom. Then he climbs again.
 
 Data comes from the public activity fragment of github.com/<user> (what
 visitors see; no token needed).
@@ -40,10 +41,14 @@ ROW_H = 18
 BAR_W = 150
 MONTH_GAP = 10
 
-# Mario: climbs at CLIMB px/s, pauses at each month, then celebrates at the flag.
+# Mario: climbs at CLIMB px/s, pauses at each month and at the flag, then gets
+# hit: freezes, hops up HOP px and falls under GRAVITY off the bottom of the card.
 CLIMB = 45
 PAUSE = 1.2
-FLAG_PAUSE = 2.0
+FLAG_PAUSE = 1.2
+HIT_FREEZE = 0.5
+HOP, HOP_TIME = 28, 0.35
+GRAVITY = 1400             # px/s^2
 STEP = 0.18                # s per climbing frame
 MARIO_PX = 2
 # Monochrome like the rest of the card: one ink colour, parts told apart by
@@ -60,6 +65,11 @@ MARIO_CLIMB = [
      ".SSRBBBBBB..", "..SBBBBBBB..", "...BBBBBB...", "..BBB..BBB..", ".HHH...HHH..",
      ".HHHH...HHH."],
 ]
+MARIO_HIT = [  # facing us, arms flung up: the Super Mario Bros. "hit" pose
+    ".SS......SS.", ".SS.RRRR.SS.", "..RRRRRRRR..", "..HHSHHSHH..", ".HSSHSSHSSH.",
+    ".HSSSSSSSSH.", "..SSHHHHSS..", "...SSSSSS...", "..RRBRRBRR..", ".RRRBBBBRRR.",
+    ".RRBBBBBBRR.", "..BBBBBBBB..", "..BBB..BBB..", "..BBB..BBB..", ".HHH....HHH.",
+    "HHHH....HHHH"]
 FLAG = ["#####", "####.", "###..", "##...", "#...."]
 
 
@@ -243,7 +253,21 @@ def render(theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str
         keys.append((t, sy))
         pos = sy
     flag_at = keys[-2][0]
-    dur = t + 0.6  # a beat off-screen before he starts again
+
+    # Hit at the flag: freeze, hop up, then fall (accelerating) off the card.
+    top = stops[-1]
+    hit_at = t
+    t += HIT_FREEZE
+    keys.append((t, top))
+    t += HOP_TIME
+    keys.append((t, top - HOP))
+    drop = height + 40 - (top - HOP)  # until he's below the card's bottom edge
+    fall_time = (2 * drop / GRAVITY) ** 0.5
+    for j in range(1, 9):  # sample the parabola so the fall speeds up
+        dt = fall_time * j / 8
+        keys.append((t + dt, top - HOP + 0.5 * GRAVITY * dt * dt))
+    t += fall_time
+    dur = t + 0.6  # a beat off-screen before he climbs again
     tl = Timeline(dur)
 
     # Months light up (accent) as Mario reaches them, until the loop restarts.
@@ -264,14 +288,18 @@ def render(theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str
                 changes.append((a + k * STEP, k % 2 == j))
                 k += 1
             changes.append((b, j == 0))
-        changes.append((dur - 0.6, False))  # off the pole for the restart beat
+        changes.append((hit_at, False))  # the hit pose takes over at the flag
         frames.append(f'<g opacity="0">{tl.show(changes)}{mario_art(art, ink)}</g>')
+    # Hit pose, centred on the pole (the climbing sprites hug it from the left).
+    frames.append(f'<g opacity="0">{tl.show([(0, False), (hit_at, True), (t, False)])}'
+                  f'<g transform="translate({len(MARIO_HIT[0]) * MARIO_PX // 2},0)">'
+                  f'{mario_art(MARIO_HIT, ink)}</g></g>')
     motion = tl.motion([k for k, _ in keys], [(LINE_X + 1, v + 16) for _, v in keys])
 
     flag_y = pole_top
     flag = (f'<g transform="translate({LINE_X + 2},{flag_y})">{pixel_art(FLAG, pole, 3)}</g>'
             f'<g transform="translate({LINE_X + 2},{flag_y})" opacity="0">'
-            f'{tl.show([(0, False), (flag_at, True), (dur - 0.6, False)])}{pixel_art(FLAG, accent, 3)}</g>')
+            f'{tl.show([(0, False), (flag_at, True), (dur, True)])}{pixel_art(FLAG, accent, 3)}</g>')
 
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" viewBox="0 0 {WIDTH} {height}" '
