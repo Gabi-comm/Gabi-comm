@@ -5,8 +5,8 @@ repositories created, pull requests...), month by month for the last few
 months, drawn in the WakaTime-dashboard look of the other cards: 1-bit dithered
 bars, stat tiles with a dithered strip, tiny labels. A pixel Mario climbs the
 timeline's vertical line from the oldest month to the newest, lighting each
-month up as he passes it, and reaches the waving flag at the top, where a coin
-pops up and then he gets hit: the classic Super Mario Bros. hop and fall off
+month up as he passes it, and reaches the waving flag at the top, where a
+pixel firework goes off and then he gets hit: the classic Super Mario Bros. hop and fall off
 the bottom. Then he climbs again.
 
 Data comes from the public activity fragment of github.com/<user> (what
@@ -56,12 +56,13 @@ GRAVITY = 1400             # px/s^2
 STEP = 0.18                # s per climbing frame
 MARIO_PX = 2
 # Mario, laid out like the NES original, in one family with the card: cap (C)
-# and overalls (B) in the card's orange, skin (S) a pale tint of it, hair/eyes/
-# moustache/shoes (H) a deep shade of it, shirt and sleeves (R) muted grey.
+# and overalls (B) in the card's orange, skin (S) white (a light grey on the
+# light card, where pure white would vanish into the background), hair/eyes/
+# moustache/shoes (H) a deep shade of the orange, shirt and sleeves (R) muted grey.
 # Dark hair, light skin in both themes, like the real sprite.
 MARIO_PALETTE = {
-    "dark": {"C": "#ffa657", "B": "#ffa657", "S": "#ffdcb8", "H": "#b35c1e", "R": "#8b949e"},
-    "light": {"C": "#953800", "B": "#953800", "S": "#f2b98b", "H": "#4a1d00", "R": "#6e7781"},
+    "dark": {"C": "#ffa657", "B": "#ffa657", "S": "#ffffff", "H": "#b35c1e", "R": "#8b949e"},
+    "light": {"C": "#953800", "B": "#953800", "S": "#d0d7de", "H": "#4a1d00", "R": "#6e7781"},
 }
 MARIO_CLIMB = [
     # Small Mario hugging the pole on his right, two climbing frames.
@@ -83,13 +84,12 @@ MARIO_HIT = [  # facing us, arms flung up: the Super Mario Bros. "hit" pose
 # (each column bobs a cell on a sine, pinned at the pole, loosest at the tip).
 FLAG_W, FLAG_H, FLAG_PX = 7, 4, 3
 WAVE_FRAMES, WAVE_TIME = 4, 0.8
-# The coin that pops when Mario reaches the top: spins (face, oval, edge) as it rises.
-COIN = [
-    ["..##..", ".####.", "######", "######", ".####.", "..##.."],
-    ["......", "..##..", "..##..", "..##..", "..##..", "......"],
-    ["......", "...#..", "...#..", "...#..", "...#..", "......"],
-]
-COIN_RISE, COIN_TIME, COIN_SPIN = 22, 0.5, 0.1
+# The firework when Mario reaches the top: a rocket streaks up ROCKET_RISE px,
+# then bursts into an outer ring of orange sparks and an inner ring of ink
+# sparks that fly out, droop a little and flicker out.
+ROCKET_RISE, ROCKET_TIME = 34, 0.35
+SPARKS = ((12, 20, "lit"), (6, 10, "ink"))  # (count, radius px, colour) per ring
+BURST_TIME, SPARK_PX, DROOP = 0.6, 3, 6
 
 
 
@@ -202,16 +202,18 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
         out.append(f'<rect x="{x:.0f}" y="{y + 4}" width="8" height="{TILE_H - 16}" fill="url(#l1)"/>'
                    f'<text x="{x + 16:.0f}" y="{y + 26}" font-size="24" fill="{ink}">{escape(value)}</text>'
                    f'<text x="{x + 16:.0f}" y="{y + 40}" font-size="11" fill="{ink}" opacity="0.8">{escape(label)}</text>')
-    y += TILE_H + 40  # headroom for the flag at the top of the pole
+    y += TILE_H + 70  # headroom for the flag and its firework at the top of the pole
 
     # Timeline: month headers, activity items, rows with dithered bars.
-    nodes = []  # (y of each month's node, month index)
+    nodes = []  # y of each month's node
+    rules = []  # (x, y, width) of each month's dotted rule
     body: list[str] = []
     for mi, mo in enumerate(months):
         ny = y + HEADER_H // 2
         nodes.append(ny)
         label = f'{calendar.month_name[mo["month"]].upper()} {mo["year"]}'
         lw = len(label) * 7.4
+        rules.append((round(TEXT_X + lw + 10), ny, round(right - TEXT_X - lw - 10)))
         body.append(f'<g data-month="{mi}"><text class="m{mi}" x="{TEXT_X}" y="{ny + 4}" font-size="11" '
                     f'font-weight="bold" fill="{ink}">{label}</text></g>'
                     f'<rect x="{TEXT_X + lw + 10:.0f}" y="{ny}" width="{right - TEXT_X - lw - 10:.0f}" height="2" fill="url(#l1)"/>')
@@ -273,6 +275,8 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
         keys.append((t, sy))
         pos = sy
     flag_at = keys[-2][0]
+    # climbing[i] is the climb up to stops[i]; stops run oldest month first.
+    approach = {len(nodes) - 1 - i: climbing[i] for i in range(len(nodes))}
 
     # Hit at the flag: freeze, hop up, then fall (accelerating) off the card.
     top = stops[-1]
@@ -299,6 +303,15 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
                   .replace("</text>", tl.show([(0, False), (at, True)]) + "</text>"))
         body[i] = body[i].replace(label_el, label_el + lit_el)
 
+    # Each month's dotted rule fills orange in step with Mario's climb toward
+    # that month: empty as he sets off from the marker below, full as he
+    # reaches its own. Taller (busier) months fill slower.
+    for mi, (rx, ry, rw) in enumerate(rules):
+        start, end = approach[mi]
+        body.append(f'<rect x="{rx}" y="{ry}" width="0" height="2" fill="url(#l1o)">'
+                    f'<animate attributeName="width" values="0;0;{rw};{rw}" '
+                    f'keyTimes="0;{tl.key(start)};{tl.key(end)};1" calcMode="linear" {tl.loop}/></rect>')
+
     frames = []
     for j, art in enumerate(MARIO_CLIMB):
         changes = [(0.0, j == 0)]
@@ -316,7 +329,7 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
                   f'{mario_art(MARIO_HIT, palette)}</g></g>')
     motion = tl.motion([k for k, _ in keys], [(LINE_X + 1, v + 16) for _, v in keys])
 
-    # Waving flag: frames of a rippling rectangle, pole colour until Mario
+    # Waving flag: frames of a rippling rectangle, orange like the pole until Mario
     # reaches it, then ink (the fill is animated; the frames inherit it).
     wave = []
     for f in range(WAVE_FRAMES):
@@ -328,31 +341,47 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
         keys = ";".join("1" if g == f else "0" for g in range(WAVE_FRAMES))
         wave.append(f'<g opacity="0">{"".join(cells)}<animate attributeName="opacity" values="{keys}" '
                     f'calcMode="discrete" dur="{WAVE_TIME}s" repeatCount="indefinite"/></g>')
-    flag = (f'<g transform="translate({LINE_X + 1},{pole_top})" fill="{pole}">'
-            f'<animate attributeName="fill" {tl.steps([(0, pole), (flag_at, ink), (dur, ink)])}/>'
+    flag = (f'<g transform="translate({LINE_X + 1},{pole_top})" fill="{lit}">'
+            f'<animate attributeName="fill" {tl.steps([(0, lit), (flag_at, ink), (dur, ink)])}/>'
             f'{"".join(wave)}</g>')
 
-    # The coin: pops from the flag as Mario arrives, spins as it rises, then vanishes.
-    cx, cy = LINE_X + 1 + FLAG_W * FLAG_PX // 2, pole_top - 6
-    spins = int(COIN_TIME / COIN_SPIN) + 3
-    coin_frames = []
-    for j, art in enumerate(COIN):
-        shown = [(0, False)] + [(flag_at + k * COIN_SPIN, k % len(COIN) == j) for k in range(spins)]
-        shown.append((flag_at + spins * COIN_SPIN, False))
-        coin_frames.append(f'<g opacity="0">{tl.show(shown)}{pixel_art(art, lit, 2)}</g>')
-    coin = (f'<g>{tl.motion([flag_at, flag_at + COIN_TIME], [(cx, cy), (cx, cy - COIN_RISE)])}'
-            f'{"".join(coin_frames)}</g>')
+    # The firework: a rocket from the flag as Mario arrives, then the burst.
+    fx, fy = LINE_X + 1 + FLAG_W * FLAG_PX // 2, pole_top - 4
+    burst_at = flag_at + ROCKET_TIME
+    by = fy - ROCKET_RISE
+    rocket = (f'<g opacity="0">{tl.show([(0, False), (flag_at, True), (burst_at, False)])}'
+              f'{tl.motion([flag_at, burst_at], [(fx, fy), (fx, by)])}'
+              f'<rect x="-1" y="-2" width="2" height="4" fill="{lit}"/>'
+              f'<rect x="-1" y="2" width="2" height="4" fill="{lit}" opacity="0.4"/></g>')
+    colours = {"lit": lit, "ink": ink}
+    sparks = []
+    end = burst_at + BURST_TIME
+    for count, radius, colour in SPARKS:
+        for k in range(count):
+            ang = 2 * math.pi * k / count
+            dx, dy = round(radius * math.cos(ang)), round(radius * math.sin(ang))
+            # Solid while they fly out, then a quick flicker as they burn out.
+            flicker = [(0, False), (burst_at, True)] + [
+                (burst_at + BURST_TIME * 0.55 + 0.05 * f, f % 2 == 1) for f in range(int(BURST_TIME * 0.45 / 0.05))
+            ] + [(end, False)]
+            sparks.append(
+                f'<g opacity="0">{tl.show(flicker)}'
+                f'{tl.motion([burst_at, burst_at + 0.25, end], [(fx, by), (fx + dx, by + dy), (fx + dx, by + dy + DROOP)])}'
+                f'<rect x="{-SPARK_PX // 2}" y="{-SPARK_PX // 2}" width="{SPARK_PX}" height="{SPARK_PX}" '
+                f'fill="{colours[colour]}"/></g>')
+    firework = rocket + "".join(sparks)
 
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" viewBox="0 0 {WIDTH} {height}" '
         f'shape-rendering="crispEdges" font-family="Consolas, \'Courier New\', monospace">',
-        f"<defs>{patterns(ink)}</defs>",
+        f'<defs>{patterns(ink)}<pattern id="l1o" width="4" height="4" patternUnits="userSpaceOnUse">'
+        f'<rect width="2" height="2" fill="{lit}"/></pattern></defs>',
         f'<rect width="{WIDTH}" height="{height}" rx="15" fill="{bg}"/>',
         *out,
-        f'<rect x="{LINE_X - 1}" y="{pole_top}" width="2" height="{bottom - pole_top}" fill="{pole}"/>',
-        f'<rect x="{LINE_X - 3}" y="{pole_top - 4}" width="6" height="6" fill="{pole}"/>',
+        f'<rect x="{LINE_X - 1}" y="{pole_top}" width="2" height="{bottom - pole_top}" fill="{lit}"/>',
+        f'<rect x="{LINE_X - 3}" y="{pole_top - 4}" width="6" height="6" fill="{lit}"/>',
         flag,
-        coin,
+        firework,
         *(f'<rect x="{LINE_X - 4}" y="{ny - 4}" width="8" height="8" fill="{ink}"/>' for ny in nodes),
         *body,
         f"<g>{motion}{''.join(frames)}</g>",
