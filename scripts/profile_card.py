@@ -1,12 +1,4 @@
-"""Render the neofetch-style profile card: dark_mode.svg + light_mode.svg.
 
-ASCII portrait (assets/portrait.txt) on the left, an info panel on the right,
-live GitHub stats at the bottom. Run daily by .github/workflows/profile-card.yml.
-
-Usage:
-    GITHUB_TOKEN=... python scripts/profile_card.py
-    python scripts/profile_card.py --offline      # placeholder stats, no network
-"""
 import argparse
 import json
 import os
@@ -19,11 +11,11 @@ from make_ascii import RAMP
 
 ROOT = Path(__file__).resolve().parent.parent
 USER = "Gabi-comm"
-JOINED = date(2023, 12, 11)  # GitHub account creation
+JOINED = date(2023, 12, 11) 
 
-WIDTH = 62  # info panel width in characters; every line is padded to this
+WIDTH = 62  
 
-# (key, value) rows. None = blank separator; ("- Title", None) = section rule.
+
 PROFILE = [
     ("OS", "Windows 11, Ubuntu (Azure)"),
     ("Uptime", "{uptime}"),
@@ -56,14 +48,11 @@ THEMES = {
                   dim="#9aa6b5", ascii="#24292f", invert=True),
 }
 
-# Layout (px).
 PAD = 28
 ASCII_FONT, ASCII_CHAR_W, ASCII_LINE = 9, 5.4, 10.4
 INFO_FONT, INFO_CHAR_W, INFO_LINE = 14, 8.4, 18.5
 GAP = 28
 
-
-# ---------------------------------------------------------------- stats
 
 QUERY = """
 query($login: String!) {
@@ -109,7 +98,6 @@ def fetch_stats(token: str) -> dict:
     user = graphql(token, QUERY, {"login": USER})["user"]
     commits = 0
     now = datetime.now(timezone.utc)
-    # contributionsCollection spans at most one year per call.
     for year in range(JOINED.year, now.year + 1):
         start = datetime(year, 1, 1, tzinfo=timezone.utc)
         end = min(datetime(year + 1, 1, 1, tzinfo=timezone.utc), now)
@@ -140,10 +128,6 @@ def uptime(today: date) -> str:
 
     return f"{unit(years, 'year')}, {unit(months, 'month')}, {unit(days, 'day')}"
 
-
-# ---------------------------------------------------------------- layout
-# A rendered line is a list of (style, text) spans; styles map to theme colours.
-
 def kv(key: str, value: str, width: int) -> list[tuple[str, str]]:
     """'. Key: ...... value' padded to `width` characters."""
     head, tail = f"{key}:", f" {value}"
@@ -157,12 +141,12 @@ def rule(title: str, width: int) -> list[tuple[str, str]]:
     return [("text", title + " "), ("dim", "—" * (width - len(title) - 1))]
 
 
-STAT_SPLIT = 36  # chars before the ' | ' on the stats rows
+STAT_SPLIT = 36  
 
 
 def stat_pair(left: tuple[str, str], right: tuple[str, str], width: int) -> list[tuple[str, str]]:
     """Two key/values on one line split by ' | ', like the sample's stats rows."""
-    right_spans = kv(*right, width - STAT_SPLIT - 3 + 2)[1:]  # no leading '. ' on the right
+    right_spans = kv(*right, width - STAT_SPLIT - 3 + 2)[1:] 
     return kv(*left, STAT_SPLIT) + [("text", " | ")] + right_spans
 
 
@@ -186,7 +170,6 @@ def info_lines(stats: dict, today: date) -> list[list[tuple[str, str]]]:
 
 
 def invert_ascii(line: str) -> str:
-    """Flip glyph density for light backgrounds; background spaces stay blank."""
     last = len(RAMP) - 1
     return "".join(RAMP[last + 1 - RAMP.index(ch)] if ch in RAMP[1:] else ch for ch in line)
 
@@ -209,7 +192,6 @@ def render(theme: dict, portrait: list[str], info: list[list[tuple[str, str]]]) 
         f'<rect width="{width}" height="{height}" rx="15" fill="{theme["bg"]}"/>',
     ]
 
-    # Portrait, vertically centred against the info panel.
     y0 = PAD + (content_h - ascii_h) / 2 + ASCII_LINE * 0.8
     out.append(f'<g fill="{theme["ascii"]}" font-size="{ASCII_FONT}">')
     for i, line in enumerate(portrait):
@@ -222,8 +204,6 @@ def render(theme: dict, portrait: list[str], info: list[list[tuple[str, str]]]) 
         )
     out.append("</g>")
 
-    # Info panel. textLength pins every line to the same width, so columns
-    # stay aligned whatever monospace font the viewer's browser picks.
     x = PAD + ascii_w + GAP
     y1 = PAD + (content_h - info_h) / 2 + INFO_LINE * 0.8
     out.append(f'<g font-size="{INFO_FONT}">')
