@@ -51,9 +51,10 @@ HOP, HOP_TIME = 28, 0.35
 GRAVITY = 1400             # px/s^2
 STEP = 0.18                # s per climbing frame
 MARIO_PX = 2
-# Monochrome like the rest of the card: one ink colour, parts told apart by
-# strength (cap/shirt and hair/shoes solid, overalls mid, skin faint).
-MARIO_SHADES = {"R": 1.0, "H": 1.0, "B": 0.6, "S": 0.3}
+# Mario wears the card's own palette: cap and shirt in the contribution green
+# the months light up in, overalls in the timeline's blue, hair and shoes in
+# ink, skin a faint ink tone. Each part: (palette colour, opacity).
+MARIO_PARTS = {"R": ("lit", 1.0), "B": ("pole", 1.0), "H": ("ink", 1.0), "S": ("ink", 0.35)}
 MARIO_CLIMB = [
     # Small Mario hugging the pole on his right, two climbing frames.
     ["....RRRRR...", "...RRRRRRRRR", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
@@ -151,16 +152,17 @@ def totals(months: list[dict]) -> list[tuple[str, str]]:
 
 # ---------------------------------------------------------------- drawing
 
-def mario_art(rows: list[str], ink: str, px: int = MARIO_PX) -> str:
-    """Pixel art in shades of one ink colour, anchored at its bottom-right corner."""
+def mario_art(rows: list[str], palette: dict, px: int = MARIO_PX) -> str:
+    """Mario's pixel art in the card palette, anchored at its bottom-right corner."""
     h, w = len(rows), len(rows[0])
     rects: dict[str, list[str]] = {}
     for y, row in enumerate(rows):
         for x, ch in enumerate(row):
-            if ch in MARIO_SHADES:
+            if ch in MARIO_PARTS:
                 rects.setdefault(ch, []).append(
                     f'<rect x="{(x - w) * px}" y="{(y - h) * px}" width="{px}" height="{px}"/>')
-    return "".join(f'<g fill="{ink}" fill-opacity="{MARIO_SHADES[c]}">{"".join(r)}</g>' for c, r in rects.items())
+    return "".join(f'<g fill="{palette[MARIO_PARTS[c][0]]}" fill-opacity="{MARIO_PARTS[c][1]}">{"".join(r)}</g>'
+                   for c, r in rects.items())
 
 
 def short(repo: str, owner: str = USER) -> str:
@@ -170,6 +172,7 @@ def short(repo: str, owner: str = USER) -> str:
 
 def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str:
     ink, bg, pole = theme["text"], theme["bg"], theme["value"]
+    palette = {"ink": ink, "pole": pole, "lit": LIT[name]}
     right = WIDTH - PAD
     out: list[str] = []
     y = PAD
@@ -293,11 +296,11 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
                 k += 1
             changes.append((b, j == 0))
         changes.append((hit_at, False))  # the hit pose takes over at the flag
-        frames.append(f'<g opacity="0">{tl.show(changes)}{mario_art(art, ink)}</g>')
+        frames.append(f'<g opacity="0">{tl.show(changes)}{mario_art(art, palette)}</g>')
     # Hit pose, centred on the pole (the climbing sprites hug it from the left).
     frames.append(f'<g opacity="0">{tl.show([(0, False), (hit_at, True), (t, False)])}'
                   f'<g transform="translate({len(MARIO_HIT[0]) * MARIO_PX // 2},0)">'
-                  f'{mario_art(MARIO_HIT, ink)}</g></g>')
+                  f'{mario_art(MARIO_HIT, palette)}</g></g>')
     motion = tl.motion([k for k, _ in keys], [(LINE_X + 1, v + 16) for _, v in keys])
 
     flag_y = pole_top
