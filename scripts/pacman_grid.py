@@ -407,7 +407,7 @@ def render(theme: dict, weeks: list[list[dict]], stats: list[tuple[str, str]], s
         leave = arrive - exit_len / SPEED
         total = exit_len + length
         g_path = f"M{gx},{gy} L{sx},{sy} " + " ".join(f"L{x},{y}" for x, y in pts[1:])
-        bob_t = [k * 0.4 for k in range(int(leave / 0.4) + 1)] + [leave]
+        bob_t = [k * 0.4 for k in range(int(leave / 0.4) + 1) if k * 0.4 < leave] + [leave]
         bob_v = ["0,0" if k % 2 == 0 else "0,-2" for k in range(len(bob_t) - 1)] + ["0,0"]
         paint = ink if fill == "solid" else f"url(#{fill})"
         out.append(
