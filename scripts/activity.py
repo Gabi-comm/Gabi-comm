@@ -38,26 +38,32 @@ GRAVITY = 1400
 STEP = 0.18                
 MARIO_PX = 2
 
+# Mario dressed like the photo (assets/me.jpg): black hair (K), tan skin (S),
+# dark eyes (E), white shirt (W), navy tie (T), dark trousers (P), shoes (F).
+# The darkest tones are lifted a little on the dark card and the white shirt is
+# softened on the light card, so nothing vanishes into the background.
 MARIO_PALETTE = {
-    "dark": {"C": "#ffa657", "B": "#ffa657", "S": "#ffffff", "H": "#b35c1e", "R": "#8b949e"},
-    "light": {"C": "#953800", "B": "#953800", "S": "#d0d7de", "H": "#4a1d00", "R": "#6e7781"},
+    "dark": {"K": "#4a515b", "S": "#bc9768", "E": "#1f2328", "W": "#f0f3f6",
+             "T": "#3d5ab8", "P": "#3a4350", "F": "#5a626d"},
+    "light": {"K": "#1f2328", "S": "#bc9768", "E": "#1f2328", "W": "#d8dee4",
+              "T": "#1f3a8a", "P": "#2d333b", "F": "#1f2328"},
 }
 MARIO_CLIMB = [
-
-    ["....CCCCC...", "...CCCCCCCCC", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
-     "..HHSSSSHHH.", "....SSSSSSS.", "...RRBRRRSS.", "..RRRBRRBSS.", "..RRRBBBBR..",
-     "..SSRBBBBB..", "..SSBBBBBB..", "...BBBBBB...", "...BBB.BBB..", "..HHH..HHH..",
-     ".HHHH...HHH."],
-    ["....CCCCC...", "...CCCCCCCCC", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
-     "..HHSSSSHHH.", "....SSSSSSSS", "...RRBRRR.SS", "..RRRBRRB...", ".SRRRBBBBR..",
-     ".SSRBBBBBB..", "..SBBBBBBB..", "...BBBBBB...", "..BBB..BBB..", ".HHH...HHH..",
-     ".HHHH...HHH."],
+    # Hugging the pole on his right, two climbing frames.
+    ["....KKKKK...", "...KKKKKKKK.", "...KKKSSES..", "..KKSSSSESSS", "..KKSSSSSSSS",
+     "..KSSSSSSSS.", "....SSSSSS..", "...WWTWWWSS.", "..WWWTWWWSS.", "..WWWTTWWW..",
+     "..SSWTTWWW..", "..SSWWTWWW..", "...PPPPPP...", "...PPP.PPP..", "..FFF..FFF..",
+     ".FFFF...FFF."],
+    ["....KKKKK...", "...KKKKKKKK.", "...KKKSSES..", "..KKSSSSESSS", "..KKSSSSSSSS",
+     "..KSSSSSSSS.", "....SSSSSSSS", "...WWTWWW.SS", "..WWWTWWW...", ".SWWWTTWWW..",
+     ".SSWTTWWWW..", "..SWWWTWWW..", "...PPPPPP...", "..PPP..PPP..", ".FFF...FFF..",
+     ".FFFF...FFF."],
 ]
-MARIO_HIT = [  
-    ".SS......SS.", ".SS.CCCC.SS.", "..CCCCCCCC..", "..HHSHHSHH..", ".HSSHSSHSSH.",
-    ".HSSSSSSSSH.", "..SSHHHHSS..", "...SSSSSS...", "..RRBRRBRR..", ".RRRBBBBRRR.",
-    ".RRBBBBBBRR.", "..BBBBBBBB..", "..BBB..BBB..", "..BBB..BBB..", ".HHH....HHH.",
-    "HHHH....HHHH"]
+MARIO_HIT = [  # facing us, arms flung up, mouth open: the Super Mario Bros. "hit" pose
+    ".SS......SS.", ".SS.KKKK.SS.", "..KKKKKKKK..", "..KKSSSSKK..", ".KSESSSSESK.",
+    ".SSSSSSSSSS.", "..SSSEESSS..", "...SSSSSS...", "..WWWTTWWW..", ".WWWWTTWWWW.",
+    ".WWWWTTWWWW.", "..WWWTTWWW..", "..PPP..PPP..", "..PPP..PPP..", ".FFF....FFF.",
+    "FFFF....FFFF"]
 
 FLAG_W, FLAG_H, FLAG_PX = 7, 4, 3
 WAVE_FRAMES, WAVE_TIME = 4, 0.8
