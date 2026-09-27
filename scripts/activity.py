@@ -46,7 +46,9 @@ PAUSE = 1.2
 FLAG_PAUSE = 2.0
 STEP = 0.18                # s per climbing frame
 MARIO_PX = 2
-MARIO_COLOURS = {"R": "#e52521", "B": "#3d6fe0", "S": "#fcbc80", "H": "#7a4a1c"}
+# Monochrome like the rest of the card: one ink colour, parts told apart by
+# strength (cap/shirt and hair/shoes solid, overalls mid, skin faint).
+MARIO_SHADES = {"R": 1.0, "H": 1.0, "B": 0.6, "S": 0.3}
 MARIO_CLIMB = [
     # Small Mario hugging the pole on his right, two climbing frames.
     ["....RRRRR...", "...RRRRRRRRR", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
@@ -135,16 +137,16 @@ def totals(months: list[dict]) -> list[tuple[str, str]]:
 
 # ---------------------------------------------------------------- drawing
 
-def mario_art(rows: list[str], px: int = MARIO_PX) -> str:
-    """Multi-colour pixel art, anchored at its bottom-right corner."""
+def mario_art(rows: list[str], ink: str, px: int = MARIO_PX) -> str:
+    """Pixel art in shades of one ink colour, anchored at its bottom-right corner."""
     h, w = len(rows), len(rows[0])
     rects: dict[str, list[str]] = {}
     for y, row in enumerate(rows):
         for x, ch in enumerate(row):
-            if ch in MARIO_COLOURS:
+            if ch in MARIO_SHADES:
                 rects.setdefault(ch, []).append(
                     f'<rect x="{(x - w) * px}" y="{(y - h) * px}" width="{px}" height="{px}"/>')
-    return "".join(f'<g fill="{MARIO_COLOURS[c]}">{"".join(r)}</g>' for c, r in rects.items())
+    return "".join(f'<g fill="{ink}" fill-opacity="{MARIO_SHADES[c]}">{"".join(r)}</g>' for c, r in rects.items())
 
 
 def short(repo: str, owner: str = USER) -> str:
@@ -263,7 +265,7 @@ def render(theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str
                 k += 1
             changes.append((b, j == 0))
         changes.append((dur - 0.6, False))  # off the pole for the restart beat
-        frames.append(f'<g opacity="0">{tl.show(changes)}{mario_art(art)}</g>')
+        frames.append(f'<g opacity="0">{tl.show(changes)}{mario_art(art, ink)}</g>')
     motion = tl.motion([k for k, _ in keys], [(LINE_X + 1, v + 16) for _, v in keys])
 
     flag_y = pole_top
