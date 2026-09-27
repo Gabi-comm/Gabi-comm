@@ -199,7 +199,8 @@ def connected(graph: dict[tuple, set]) -> bool:
 
 
 def ghost_house(weeks: list[list[dict]]) -> dict:
-    """A walled box mid-year with a two-cell door on top."""
+    """A walled box mid-year with a two-cell open door on top, and a wall-free
+    lobby above it (one column wider each side) so the way out is always clear."""
     c0 = len(weeks) // 2 - HOUSE_W // 2
     cells = {(c0 + x, HOUSE_ROW + y) for x in range(HOUSE_W) for y in range(HOUSE_H)}
     door_cols = (c0 + HOUSE_W // 2 - 1, c0 + HOUSE_W // 2)
@@ -208,6 +209,7 @@ def ghost_house(weeks: list[list[dict]]) -> dict:
     return {
         "cells": cells,
         "doors": doors,
+        "lobby": {(c, r) for c in range(c0 - 1, c0 + HOUSE_W + 1) for r in range(HOUSE_ROW)},
         "exit": (door_cols[0], HOUSE_ROW - 1),  # just outside the door
         "start": (door_cols[0], mid),
         "slots": [(c0, mid), (c0 + 1, mid), (c0 + HOUSE_W - 2, mid), (c0 + HOUSE_W - 1, mid)],
@@ -217,7 +219,8 @@ def ghost_house(weeks: list[list[dict]]) -> dict:
 def build_maze(graph: dict[tuple, set], rng: random.Random, house: dict) -> set[frozenset]:
     """Knock walls into gutters at random, never leaving a dead end or cutting the maze in two.
 
-    The ghost house is fixed: walled all round except its door, open inside."""
+    The ghost house is fixed: walled all round except its door, open inside,
+    and nothing is ever walled off inside the lobby above it."""
     walls = set()
     inside = house["cells"]
     for a in inside:
@@ -232,6 +235,8 @@ def build_maze(graph: dict[tuple, set], rng: random.Random, house: dict) -> set[
     for edge in edges:
         a, b = tuple(edge)
         if a in inside or b in inside or edge in house["doors"]:
+            continue
+        if a in house["lobby"] and b in house["lobby"]:
             continue
         if rng.random() > WALL_CHANCE or len(graph[a]) <= 2 or len(graph[b]) <= 2:
             continue
@@ -340,11 +345,14 @@ def simulate(graph, house, pellets, power, rng, cfg: dict) -> dict:
                 fright_until = k + cfg["fright"]
                 for g in ghosts:
                     g["scared"] = g["mode"] != "eyes"
+                    g["last"] = None  # the one moment a ghost may turn around
         if k >= fright_until:
             for g in ghosts:
                 g["scared"] = False
 
-        # --- Ghosts
+        # --- Ghosts. Like the arcade, a roaming ghost never turns back on
+        # itself: it picks the best way forward at each junction.
+        to_pac = distances(graph, pac)
         for i, g in enumerate(ghosts):
             g["prev"] = g["at"]
             mode = g["mode"]
@@ -367,20 +375,19 @@ def simulate(graph, house, pellets, power, rng, cfg: dict) -> dict:
                 continue
             # roam
             options = [n for n in sorted(graph[g["at"]]) if n not in inside]
+            forward = [n for n in options if n != g.get("last")] or options
             if g["scared"]:
                 if k % 2:  # half speed while blue
                     continue
-                away = distances(graph, pac)
-                g["at"] = max(options, key=lambda n: (away.get(n, 0), rng.random()))
+                g["at"] = max(forward, key=lambda n: (to_pac.get(n, 0), rng.random()))
+            elif k % cfg["slow"] == cfg["slow"] - 1:  # a touch slower than Pac-Man
                 continue
-            if k % cfg["slow"] == cfg["slow"] - 1:  # a touch slower than Pac-Man
-                continue
-            if rng.random() < cfg["chase"][i]:
-                path = bfs(graph, g["at"], pac, inside)
-                g["at"] = path[1] if path and len(path) > 1 else g["at"]
-            else:
-                forward = [n for n in options if n != g.get("last")] or options
-                g["at"] = rng.choice(forward)
+            elif rng.random() < cfg["chase"][i]:
+                g["at"] = min(forward, key=lambda n: (to_pac.get(n, 99), rng.random()))
+            else:  # wander, preferring to carry straight on
+                last = g.get("last")
+                ahead = (2 * g["at"][0] - last[0], 2 * g["at"][1] - last[1]) if last else None
+                g["at"] = ahead if ahead in forward and rng.random() < 0.7 else rng.choice(forward)
             g["last"] = g["prev"]
 
         # --- Collisions: same cell, or passing through each other.
@@ -573,9 +580,6 @@ def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[st
     fx, fy = PAD - 3, grid_top - 3
     out.append(f'<rect x="{fx}" y="{fy}" width="{grid_w + 6}" height="{7 * ROW - (ROW - CELL_H) + 6}" '
                f'fill="none" stroke="{wall}" stroke-width="2"/>')
-    door = "".join(f'<rect x="{cell_xy(min(e))[0] - 2}" y="{cell_xy(min(e))[1] + CELL_H + 1}" '
-                   f'width="{COL}" height="2"/>' for e in house["doors"])
-    out.append(f'<g fill="{ink}" opacity="0.55">{door}</g>')
     for lv in levels:
         bars = []
         for edge in lv["walls"]:
@@ -623,17 +627,24 @@ def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[st
             out.append(f'<text x="{PAD + w * COL}" y="{grid_top + 7 * ROW + 12}" font-size="10" '
                        f'fill="{ink}" opacity="0.75">{month:%b}</text>')
 
-    def track(get) -> tuple[list[float], list]:
+    def track(get, glide=lambda f: False) -> tuple[list[float], list]:
         """Times + values of one sprite across all levels, holding in the house
-        through READY and hopping back (while hidden) between levels."""
+        through READY and hopping back (while hidden) between levels.
+
+        Where `glide(frame)` holds, a one-tick stand-still right before a move
+        is dropped, so a slowed sprite (a ghost skipping a tick) eases through
+        that step over two ticks instead of visibly stopping."""
         times, vals = [], []
         for lv in levels:
             frames = lv["game"]["frames"]
             times.append(lv["start"])
             vals.append(get(frames[0], 0))
+            seq = [get(f, k) for k, f in enumerate(frames)]
             for k, f in enumerate(frames):
+                if 0 < k < len(seq) - 1 and glide(f) and seq[k] == seq[k - 1] != seq[k + 1]:
+                    continue
                 times.append(lv["tick"](k))
-                vals.append(get(f, k))
+                vals.append(seq[k])
             if "next" in lv:
                 times.append(lv["next"] - JUMP)
                 vals.append(vals[-1])
@@ -644,7 +655,7 @@ def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[st
         def ghost_pos(f, k, i=i):
             x, y = centre(f["ghosts"][i][0])
             return x, y - 2 if f["ghosts"][i][2] and k % 4 >= 2 else y  # bob while in the house
-        times, pts = track(ghost_pos)
+        times, pts = track(ghost_pos, glide=lambda f, i=i: not f["ghosts"][i][2])  # not while bobbing
         looks = []
         for lv in levels:
             frames = lv["game"]["frames"]
