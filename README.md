@@ -5,6 +5,11 @@
   </picture>
 </a>
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="pacman_dark.svg">
+  <img alt="Contribution graph: a pixel Pac-Man eats this year's GitHub contributions" src="pacman_light.svg">
+</picture>
+
 ### ⏱ This week in code
 
 <!--START_SECTION:waka-->
