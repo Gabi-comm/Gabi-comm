@@ -7,6 +7,11 @@ on:
   # Allows you to manually trigger it anytime from the Actions tab
   workflow_dispatch:
 
+# waka-readme commits README.md with the default GITHUB_TOKEN, which is
+# read-only unless granted write access here.
+permissions:
+  contents: write
+
 jobs:
   update-readme:
     name: Update WakaTime Stats
@@ -15,6 +20,13 @@ jobs:
       - uses: athul/waka-readme@master
         with:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-          SHOW_TITLE: false # Set to true if you want an automated "From WakaTime" title
+          # Fills the block between <!--START_SECTION:waka--> and <!--END_SECTION:waka--> in README.md
           SECTION_NAME: waka
-          BLOCKS: "█░" # This controls the look of the loading bar
+          SHOW_TITLE: true
+          TIME_RANGE: last_7_days
+          LANG_COUNT: 6
+          SHOW_TIME: true
+          SHOW_TOTAL: true
+          BLOCKS: "░▒▓█"
+          CODE_LANG: txt
+          COMMIT_MESSAGE: "chore: update WakaTime stats"

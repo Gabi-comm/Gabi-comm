@@ -1,0 +1,47 @@
+name: Profile Card Update
+
+on:
+  schedule:
+    - cron: '30 0 * * *'   # daily, 08:30 PHT
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'assets/portrait.txt'
+      - '.github/workflows/profile-card.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    name: Render dark/light SVG cards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Render cards
+        env:
+          # Optional repo secret ACCESS_TOKEN (a PAT) also counts private contributions.
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/profile_card.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dark_mode.svg light_mode.svg
+          if git diff --cached --quiet; then
+            echo "Cards unchanged."
+            exit 0
+          fi
+          git commit -m "chore: update profile card"
+          # The WakaTime workflow also commits to main; rebase onto it before pushing.
+          git pull --rebase origin main
+          git push
