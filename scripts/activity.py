@@ -53,10 +53,10 @@ HOP, HOP_TIME = 28, 0.35
 GRAVITY = 1400             # px/s^2
 STEP = 0.18                # s per climbing frame
 MARIO_PX = 2
-# Mario wears the card's own palette: cap and shirt in the contribution green
-# the months light up in, overalls in the timeline's blue, hair and shoes in
-# ink, skin a faint ink tone. Each part: (palette colour, opacity).
-MARIO_PARTS = {"R": ("lit", 1.0), "B": ("pole", 1.0), "H": ("ink", 1.0), "S": ("ink", 0.35)}
+# Mario wears the card's own palette: cap and shirt in the orange the months
+# light up in, overalls in muted grey, hair and shoes in ink, skin a faint ink
+# tone. Each part: (palette colour, opacity).
+MARIO_PARTS = {"R": ("lit", 1.0), "B": ("grey", 1.0), "H": ("ink", 1.0), "S": ("ink", 0.35)}
 MARIO_CLIMB = [
     # Small Mario hugging the pole on his right, two climbing frames.
     ["....RRRRR...", "...RRRRRRRRR", "...HHHSSHS..", "..HSHSSSHSSS", "..HSHHSSSHSS",
@@ -75,9 +75,8 @@ MARIO_HIT = [  # facing us, arms flung up: the Super Mario Bros. "hit" pose
     "HHHH....HHHH"]
 FLAG = ["#####", "####.", "###..", "##...", "#...."]
 
-# Months light up in GitHub's contribution green as Mario passes them: it sits
-# well beside the card's blue and stands clear of the grey ink in both themes.
-LIT = {"dark": "#7ee787", "light": "#1a7f37"}
+# GitHub's muted grey, for Mario's overalls.
+MUTED = {"dark": "#8b949e", "light": "#6e7781"}
 
 
 # ---------------------------------------------------------------- data
@@ -173,14 +172,14 @@ def short(repo: str, owner: str = USER) -> str:
 
 
 def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, str]]) -> str:
-    ink, bg, pole = theme["text"], theme["bg"], theme["value"]
-    palette = {"ink": ink, "pole": pole, "lit": LIT[name]}
+    ink, bg, pole, lit = theme["text"], theme["bg"], theme["value"], theme["key"]
+    palette = {"ink": ink, "lit": lit, "grey": MUTED[name]}
     right = WIDTH - PAD
     out: list[str] = []
     y = PAD
 
     # Title and stat tiles.
-    out.append(f'<text x="{PAD}" y="{y + 12}" font-size="15" font-weight="bold" fill="{ink}">Contribution activity</text>'
+    out.append(f'<text x="{PAD}" y="{y + 12}" font-size="15" font-weight="bold" fill="{lit}">Contribution Activity</text>'
                f'<text x="{right}" y="{y + 12}" text-anchor="end" font-size="10" fill="{ink}" opacity="0.6">'
                f'last {MONTHS} months</text>')
     y += 26
@@ -278,14 +277,14 @@ def render(name: str, theme: dict, months: list[dict], stats: list[tuple[str, st
     dur = t + 0.6  # a beat off-screen before he climbs again
     tl = Timeline(dur)
 
-    # Months light up (LIT green) as Mario reaches them, until the loop restarts.
+    # Months light up orange as Mario reaches them, until the loop restarts.
     for mi, at in reached.items():
         old = f'<text class="m{mi}"'
         i = next(j for j, b in enumerate(body) if old in b)
         label_el = re.search(r'<text class="m%d".*?</text>' % mi, body[i]).group(0)
-        lit = (label_el.replace(f'fill="{ink}"', f'fill="{LIT[name]}" opacity="0"')
-               .replace("</text>", tl.show([(0, False), (at, True)]) + "</text>"))
-        body[i] = body[i].replace(label_el, label_el + lit)
+        lit_el = (label_el.replace(f'fill="{ink}"', f'fill="{lit}" opacity="0"')
+                  .replace("</text>", tl.show([(0, False), (at, True)]) + "</text>"))
+        body[i] = body[i].replace(label_el, label_el + lit_el)
 
     frames = []
     for j, art in enumerate(MARIO_CLIMB):
