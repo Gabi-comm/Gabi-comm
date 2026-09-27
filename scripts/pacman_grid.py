@@ -56,6 +56,7 @@ READY = 2.0                # s everyone sits in the ghost house first
 GHOST_FILLS = ("solid", "l3", "l2", "l1")
 FLASH = 8                  # ghosts flash for the last ticks of their fright
 RESPAWN = 10               # ticks eaten ghosts wait in the house before rejoining
+EYE_BERTH = 3              # Pac-Man keeps off eaten ghosts' eyes and this many cells of their way home
 MAX_TICKS = 700            # per-level stalemate cap (~3 min): TIME UP
 LIVES = 3                  # a ghost touch costs one; the last one is GAME OVER
 FREEZE_TICKS = 3           # everything stops when Pac-Man is caught...
@@ -369,16 +370,32 @@ def simulate(graph, house, pellets, power, rng, cfg: dict, lives: int,
         for g in hunters:
             for n, d in distances(graph, g["at"]).items():
                 ghost_eta[n] = min(d, ghost_eta.get(n, 999))
-        prev, depth, todo = {pac: None}, {pac: 0}, deque([pac])
-        while todo:
-            n = todo.popleft()
-            for m in sorted(graph[n]):
-                t = depth[n] + 1
-                lead = policy["margin"] + policy["avoid"] * memory.get(m, 0) / 3  # remembered danger: keep further ahead
-                if m in prev or m in blocked or t + lead >= ghost_eta.get(m, 999):
-                    continue
-                prev[m], depth[m] = n, t
-                todo.append(m)
+        # Eaten ghosts are just eyes heading home: leave them be. Their cell
+        # and the next few on their way back are off his map, so he never
+        # trails along behind them (unless that would leave him stuck).
+        eye_zone = set()
+        for i, g in enumerate(ghosts):
+            if g["mode"] == "eyes":
+                home = bfs(graph, g["at"], house["slots"][i]) or [g["at"]]
+                eye_zone |= set(home[:EYE_BERTH + 1])
+        eye_zone.discard(pac)
+
+        def plan(no_go: set) -> tuple[dict, dict]:
+            prev, depth, todo = {pac: None}, {pac: 0}, deque([pac])
+            while todo:
+                n = todo.popleft()
+                for m in sorted(graph[n]):
+                    t = depth[n] + 1
+                    lead = policy["margin"] + policy["avoid"] * memory.get(m, 0) / 3  # remembered danger: keep further ahead
+                    if m in prev or m in no_go or t + lead >= ghost_eta.get(m, 999):
+                        continue
+                    prev[m], depth[m] = n, t
+                    todo.append(m)
+            return prev, depth
+
+        prev, depth = plan(blocked | eye_zone)
+        if len(prev) == 1 and eye_zone:  # boxed in by the eyes: ignore them this once
+            prev, depth = plan(blocked)
 
         def first_step(goal):
             while prev[goal] != pac:
@@ -944,18 +961,41 @@ def render(name: str, theme: dict, weeks: list[list[dict]], stats: list[tuple[st
         result, colour = {"over": ("GAME OVER", ink), "time": ("TIME UP", ink),
                           "clear": ("YOU WIN!", accent)}[match["outcome"]]
         out.append(sign(result, colour, [(0, False), (match["result_at"], True), (match["end"], last_match)]))
-        # Which match this is, and what he's learned so far (next to the spare lives).
-        note = f"MATCH {m + 1}" + (f" &#183; learned from {match['learned_from']} "
-                                   f"death{'s' * (match['learned_from'] != 1)}" if m else " &#183; rookie")
         span = [(0, m == 0), (match["start"], True), (match["end"], last_match)]
-        out.append(f'<text x="{PAD + 8 + (LIVES - 1) * 18 + 4}" y="{grid_top - 9}" font-size="11" '
-                   f'font-weight="bold" fill="{ink}" opacity="0">{note}{tl.show(span)}</text>')
         # His danger memory: small marks on the days he now steers clear of.
         spots = [n for n, w in match["memory"].items() if w >= 1.5 and n in by_node and n not in house["cells"]]
         if spots:
             marks = "".join(f'<g transform="translate({centre(n)[0]},{centre(n)[1]})">'
                             f'{pixel_art(DANGER_MARK, accent, 1)}</g>' for n in sorted(spots))
             out.append(f'<g opacity="0">{tl.show(span)}<g opacity="0.8">{marks}</g></g>')
+
+    # Scoreboard next to the spare lives: "MATCH n · x - Deaths · Won: y",
+    # running totals across the whole story that tick up as they happen
+    # (a death the moment he's caught, a win when he beats all three levels).
+    events = [(0.0, 0, "match")]
+    for m, match in enumerate(matches):
+        if m:
+            events.append((match["start"], m, "match"))
+        if match["outcome"] == "clear":
+            events.append((match["result_at"], m, "win"))
+    for lv in levels:
+        frames = lv["game"]["frames"]
+        events += [(lv["tick"](k), lv["match"], "death") for k, f in enumerate(frames)
+                   if f["pac_look"] == "die0" and (k == 0 or frames[k - 1]["pac_look"] != "die0")]
+    events.sort(key=lambda e: e[0])
+    states, deaths, wins = [], 0, 0
+    for t, m, kind in events:
+        deaths += kind == "death"
+        wins += kind == "win"
+        if states and states[-1][0] == t:
+            states.pop()
+        states.append((t, m, deaths, wins))
+    for i, (t, m, d, w) in enumerate(states):
+        until = states[i + 1][0] if i + 1 < len(states) else dur
+        last = i + 1 == len(states)
+        out.append(f'<text x="{PAD + 8 + (LIVES - 1) * 18 + 4}" y="{grid_top - 9}" font-size="11" '
+                   f'font-weight="bold" fill="{ink}" opacity="0">MATCH {m + 1} &#183; {d} - Deaths &#183; Won: {w}'
+                   f'{tl.show([(0, i == 0), (t, True), (until, last)])}</text>')
 
     out.append("</svg>")
     for m, match in enumerate(matches):
