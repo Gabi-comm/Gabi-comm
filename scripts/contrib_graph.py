@@ -3,8 +3,7 @@
 A year of GitHub contributions as one bar per week, in the WakaTime-dashboard
 look of the other cards: stat tiles with a dithered strip, bars shaded with
 1-bit dither levels by how busy the week was, dotted guide lines, tiny month
-labels, and an orange 4-week moving average drawn as a stepped pixel line.
-The current week is outlined in orange.
+labels. The current week is outlined in orange.
 
 Data is the public contribution calendar (the same one the Pac-Man grid uses;
 no token needed).
@@ -26,7 +25,6 @@ TILE_H = 52
 CHART_H = 170
 AXIS_W = 30                # room for the y-axis numbers
 BAR_GAP = 4
-AVG_WEEKS = 4              # moving-average window
 
 
 def week_totals(weeks: list[list[dict]]) -> list[dict]:
@@ -108,17 +106,6 @@ def render(theme: dict, weeks: list[list[dict]], bars: list[dict], tiles: list[t
             out.append(f'<rect x="{x - 2}" y="{cy1 - max(h, 2) - 2}" width="{bar_w + 4}" height="{max(h, 2) + 4}" '
                        f'fill="none" stroke="{lit}" stroke-width="2"/>')
 
-    # Moving average: a stepped pixel line (flat across each bar, a riser between).
-    avg = [sum(b["total"] for b in bars[max(0, i - AVG_WEEKS + 1): i + 1]) / min(i + 1, AVG_WEEKS)
-           for i in range(len(bars))]
-    pts = []
-    for i, a in enumerate(avg):
-        ay = round(cy1 - CHART_H * a / top)
-        left, rightx = round(cx0 + i * pitch), round(cx0 + (i + 1) * pitch)
-        pts += [(left, ay), (rightx, ay)]
-    out.append(f'<polyline points="{" ".join(f"{px},{py}" for px, py in pts)}" fill="none" stroke="{lit}" '
-               f'stroke-width="2" stroke-linejoin="miter"/>')
-
     # Month labels under the first week of each month; baseline rule.
     out.append(f'<rect x="{cx0}" y="{cy1}" width="{cx1 - cx0}" height="2" fill="{ink}" opacity="0.5"/>')
     seen = set()
@@ -131,9 +118,7 @@ def render(theme: dict, weeks: list[list[dict]], bars: list[dict], tiles: list[t
 
     # Legend.
     ly = cy1 + 34
-    out.append(f'<rect x="{right - 200}" y="{ly - 6}" width="16" height="2" fill="{lit}"/>'
-               f'<text x="{right - 178}" y="{ly - 2}" font-size="10" fill="{ink}" opacity="0.75">{AVG_WEEKS}-week average</text>'
-               f'<rect x="{right - 72}" y="{ly - 10}" width="10" height="10" fill="none" stroke="{lit}" stroke-width="2"/>'
+    out.append(f'<rect x="{right - 72}" y="{ly - 10}" width="10" height="10" fill="none" stroke="{lit}" stroke-width="2"/>'
                f'<text x="{right - 56}" y="{ly - 2}" font-size="10" fill="{ink}" opacity="0.75">this week</text>')
     height = ly + PAD - 10
 

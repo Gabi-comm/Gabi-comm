@@ -10,7 +10,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="graph_dark.svg">
-  <img alt="Weekly GitHub contributions over the last year, with a 4-week moving average" src="graph_light.svg">
+  <img alt="Weekly GitHub contributions over the last year" src="graph_light.svg">
 </picture>
 
 <picture>

@@ -2,8 +2,8 @@
 <defs><pattern id="l0" width="4" height="4" patternUnits="userSpaceOnUse"><g fill="#c9d1d9" opacity="0.45"><rect x="0" y="0" width="1" height="1"/></g></pattern><pattern id="l1" width="4" height="4" patternUnits="userSpaceOnUse"><g fill="#c9d1d9" opacity="1"><rect x="0" y="0" width="2" height="2"/></g></pattern><pattern id="l2" width="4" height="4" patternUnits="userSpaceOnUse"><g fill="#c9d1d9" opacity="1"><rect x="0" y="0" width="2" height="2"/><rect x="2" y="2" width="2" height="2"/></g></pattern><pattern id="l3" width="4" height="4" patternUnits="userSpaceOnUse"><g fill="#c9d1d9" opacity="1"><rect x="0" y="0" width="2" height="2"/><rect x="2" y="2" width="2" height="2"/><rect x="2" y="0" width="2" height="2"/></g></pattern></defs>
 <rect width="900" height="352" rx="15" fill="#161b22"/>
 <text x="28" y="40" font-size="15" font-weight="bold" fill="#ffa657">Contribution Graph</text><text x="872" y="40" text-anchor="end" font-size="10" fill="#c9d1d9" opacity="0.6">weekly &#183; last year</text>
-<rect x="28" y="58" width="8" height="36" fill="url(#l1)"/><text x="44" y="80" font-size="24" fill="#c9d1d9">245</text><text x="44" y="94" font-size="11" fill="#c9d1d9" opacity="0.8">Total</text>
-<rect x="197" y="58" width="8" height="36" fill="url(#l1)"/><text x="213" y="80" font-size="24" fill="#c9d1d9">46</text><text x="213" y="94" font-size="11" fill="#c9d1d9" opacity="0.8">Best Week (Sep 27)</text>
+<rect x="28" y="58" width="8" height="36" fill="url(#l1)"/><text x="44" y="80" font-size="24" fill="#c9d1d9">246</text><text x="44" y="94" font-size="11" fill="#c9d1d9" opacity="0.8">Total</text>
+<rect x="197" y="58" width="8" height="36" fill="url(#l1)"/><text x="213" y="80" font-size="24" fill="#c9d1d9">47</text><text x="213" y="94" font-size="11" fill="#c9d1d9" opacity="0.8">Best Week (Sep 27)</text>
 <rect x="366" y="58" width="8" height="36" fill="url(#l1)"/><text x="382" y="80" font-size="24" fill="#c9d1d9">4.6</text><text x="382" y="94" font-size="11" fill="#c9d1d9" opacity="0.8">Weekly Average</text>
 <rect x="534" y="58" width="8" height="36" fill="url(#l1)"/><text x="550" y="80" font-size="24" fill="#c9d1d9">61</text><text x="550" y="94" font-size="11" fill="#c9d1d9" opacity="0.8">Active Days</text>
 <rect x="703" y="58" width="8" height="36" fill="url(#l1)"/><text x="719" y="80" font-size="24" fill="#c9d1d9">8d</text><text x="719" y="94" font-size="11" fill="#c9d1d9" opacity="0.8">Longest Streak</text>
@@ -114,10 +114,9 @@
 <rect x="824" y="260" width="8" height="40" fill="url(#l2)"/>
 <rect x="840" y="130" width="8" height="170" fill="transparent"><title>Sep 20 - Sep 26: 16 contributions</title></rect>
 <rect x="840" y="255" width="8" height="45" fill="url(#l2)"/>
-<rect x="856" y="130" width="8" height="170" fill="transparent"><title>Sep 27 - Sep 28: 46 contributions</title></rect>
-<rect x="856" y="170" width="8" height="130" fill="#c9d1d9"/>
-<rect x="854" y="168" width="12" height="134" fill="none" stroke="#ffa657" stroke-width="2"/>
-<polyline points="58,300 73,300 73,300 89,300 89,300 104,300 104,299 119,299 119,299 135,299 135,299 150,299 150,285 166,285 166,285 181,285 181,284 196,284 196,282 212,282 212,295 227,295 227,296 242,296 242,296 258,296 258,300 273,300 273,300 288,300 288,300 304,300 304,300 319,300 319,300 334,300 334,300 350,300 350,300 365,300 365,300 381,300 381,300 396,300 396,300 411,300 411,300 427,300 427,300 442,300 442,299 457,299 457,299 473,299 473,299 488,299 488,299 503,299 503,298 519,298 519,295 534,295 534,295 549,295 549,289 565,289 565,262 580,262 580,260 596,260 596,253 611,253 611,253 626,253 626,273 642,273 642,271 657,271 657,267 672,267 672,265 688,265 688,273 703,273 703,280 718,280 718,291 734,291 734,299 749,299 749,299 764,299 764,294 780,294 780,296 795,296 795,296 811,296 811,296 826,296 826,290 841,290 841,279 857,279 857,246 872,246" fill="none" stroke="#ffa657" stroke-width="2" stroke-linejoin="miter"/>
+<rect x="856" y="130" width="8" height="170" fill="transparent"><title>Sep 27 - Sep 28: 47 contributions</title></rect>
+<rect x="856" y="167" width="8" height="133" fill="#c9d1d9"/>
+<rect x="854" y="165" width="12" height="137" fill="none" stroke="#ffa657" stroke-width="2"/>
 <rect x="58" y="300" width="814" height="2" fill="#c9d1d9" opacity="0.5"/>
 <text x="58" y="316" font-size="10" fill="#c9d1d9" opacity="0.75">Oct</text>
 <text x="119" y="316" font-size="10" fill="#c9d1d9" opacity="0.75">Nov</text>
@@ -131,5 +130,5 @@
 <text x="657" y="316" font-size="10" fill="#c9d1d9" opacity="0.75">Jul</text>
 <text x="718" y="316" font-size="10" fill="#c9d1d9" opacity="0.75">Aug</text>
 <text x="795" y="316" font-size="10" fill="#c9d1d9" opacity="0.75">Sep</text>
-<rect x="672" y="328" width="16" height="2" fill="#ffa657"/><text x="694" y="332" font-size="10" fill="#c9d1d9" opacity="0.75">4-week average</text><rect x="800" y="324" width="10" height="10" fill="none" stroke="#ffa657" stroke-width="2"/><text x="816" y="332" font-size="10" fill="#c9d1d9" opacity="0.75">this week</text>
+<rect x="800" y="324" width="10" height="10" fill="none" stroke="#ffa657" stroke-width="2"/><text x="816" y="332" font-size="10" fill="#c9d1d9" opacity="0.75">this week</text>
 </svg>
