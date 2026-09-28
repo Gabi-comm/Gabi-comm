@@ -1,134 +1,81 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="352" viewBox="0 0 900 352" shape-rendering="crispEdges" font-family="Consolas, 'Courier New', monospace">
 <defs><pattern id="l0" width="4" height="4" patternUnits="userSpaceOnUse"><g fill="#24292f" opacity="0.45"><rect x="0" y="0" width="1" height="1"/></g></pattern><pattern id="l1" width="4" height="4" patternUnits="userSpaceOnUse"><g fill="#24292f" opacity="1"><rect x="0" y="0" width="2" height="2"/></g></pattern><pattern id="l2" width="4" height="4" patternUnits="userSpaceOnUse"><g fill="#24292f" opacity="1"><rect x="0" y="0" width="2" height="2"/><rect x="2" y="2" width="2" height="2"/></g></pattern><pattern id="l3" width="4" height="4" patternUnits="userSpaceOnUse"><g fill="#24292f" opacity="1"><rect x="0" y="0" width="2" height="2"/><rect x="2" y="2" width="2" height="2"/><rect x="2" y="0" width="2" height="2"/></g></pattern></defs>
 <rect width="900" height="352" rx="15" fill="#f6f8fa"/>
-<text x="28" y="40" font-size="15" font-weight="bold" fill="#953800">Contribution Graph</text><text x="872" y="40" text-anchor="end" font-size="10" fill="#24292f" opacity="0.6">weekly &#183; last year</text>
-<rect x="28" y="58" width="8" height="36" fill="url(#l1)"/><text x="44" y="80" font-size="24" fill="#24292f">248</text><text x="44" y="94" font-size="11" fill="#24292f" opacity="0.8">Total</text>
-<rect x="197" y="58" width="8" height="36" fill="url(#l1)"/><text x="213" y="80" font-size="24" fill="#24292f">49</text><text x="213" y="94" font-size="11" fill="#24292f" opacity="0.8">Best Week (Sep 27)</text>
-<rect x="366" y="58" width="8" height="36" fill="url(#l1)"/><text x="382" y="80" font-size="24" fill="#24292f">4.7</text><text x="382" y="94" font-size="11" fill="#24292f" opacity="0.8">Weekly Average</text>
-<rect x="534" y="58" width="8" height="36" fill="url(#l1)"/><text x="550" y="80" font-size="24" fill="#24292f">61</text><text x="550" y="94" font-size="11" fill="#24292f" opacity="0.8">Active Days</text>
-<rect x="703" y="58" width="8" height="36" fill="url(#l1)"/><text x="719" y="80" font-size="24" fill="#24292f">8d</text><text x="719" y="94" font-size="11" fill="#24292f" opacity="0.8">Longest Streak</text>
+<text x="28" y="40" font-size="15" font-weight="bold" fill="#953800">Contribution Graph</text><text x="872" y="40" text-anchor="end" font-size="10" fill="#24292f" opacity="0.6">daily &#183; September 2026</text>
+<rect x="28" y="58" width="8" height="36" fill="url(#l1)"/><text x="44" y="80" font-size="24" fill="#24292f">79</text><text x="44" y="94" font-size="11" fill="#24292f" opacity="0.8">This Month</text>
+<rect x="197" y="58" width="8" height="36" fill="url(#l1)"/><text x="213" y="80" font-size="24" fill="#24292f">39</text><text x="213" y="94" font-size="11" fill="#24292f" opacity="0.8">Best Day (Sep 27)</text>
+<rect x="366" y="58" width="8" height="36" fill="url(#l1)"/><text x="382" y="80" font-size="24" fill="#24292f">2.8</text><text x="382" y="94" font-size="11" fill="#24292f" opacity="0.8">Daily Average</text>
+<rect x="534" y="58" width="8" height="36" fill="url(#l1)"/><text x="550" y="80" font-size="24" fill="#24292f">12</text><text x="550" y="94" font-size="11" fill="#24292f" opacity="0.8">Active Days</text>
+<rect x="703" y="58" width="8" height="36" fill="url(#l1)"/><text x="719" y="80" font-size="24" fill="#24292f">3d</text><text x="719" y="94" font-size="11" fill="#24292f" opacity="0.8">Current Streak</text>
 <rect x="58" y="300" width="814" height="1" fill="url(#l0)"/><text x="50" y="304" text-anchor="end" font-size="10" fill="#24292f" opacity="0.6">0</text>
-<rect x="58" y="215" width="814" height="1" fill="url(#l0)"/><text x="50" y="219" text-anchor="end" font-size="10" fill="#24292f" opacity="0.6">30</text>
-<rect x="58" y="130" width="814" height="1" fill="url(#l0)"/><text x="50" y="134" text-anchor="end" font-size="10" fill="#24292f" opacity="0.6">60</text>
-<rect x="56" y="130" width="8" height="170" fill="transparent"><title>Sep 28 - Oct 04: 0 contributions</title></rect>
-<rect x="56" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="72" y="130" width="8" height="170" fill="transparent"><title>Oct 05 - Oct 11: 0 contributions</title></rect>
-<rect x="72" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="88" y="130" width="8" height="170" fill="transparent"><title>Oct 12 - Oct 18: 0 contributions</title></rect>
-<rect x="88" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="104" y="130" width="8" height="170" fill="transparent"><title>Oct 19 - Oct 25: 1 contribution</title></rect>
-<rect x="104" y="297" width="8" height="3" fill="url(#l1)"/>
-<rect x="120" y="130" width="8" height="170" fill="transparent"><title>Oct 26 - Nov 01: 0 contributions</title></rect>
-<rect x="120" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="136" y="130" width="8" height="170" fill="transparent"><title>Nov 02 - Nov 08: 1 contribution</title></rect>
-<rect x="136" y="297" width="8" height="3" fill="url(#l1)"/>
-<rect x="152" y="130" width="8" height="170" fill="transparent"><title>Nov 09 - Nov 15: 19 contributions</title></rect>
-<rect x="152" y="246" width="8" height="54" fill="url(#l2)"/>
-<rect x="164" y="130" width="8" height="170" fill="transparent"><title>Nov 16 - Nov 22: 1 contribution</title></rect>
-<rect x="164" y="297" width="8" height="3" fill="url(#l1)"/>
-<rect x="180" y="130" width="8" height="170" fill="transparent"><title>Nov 23 - Nov 29: 1 contribution</title></rect>
-<rect x="180" y="297" width="8" height="3" fill="url(#l1)"/>
-<rect x="196" y="130" width="8" height="170" fill="transparent"><title>Nov 30 - Dec 06: 5 contributions</title></rect>
-<rect x="196" y="286" width="8" height="14" fill="url(#l1)"/>
-<rect x="212" y="130" width="8" height="170" fill="transparent"><title>Dec 07 - Dec 13: 0 contributions</title></rect>
-<rect x="212" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="228" y="130" width="8" height="170" fill="transparent"><title>Dec 14 - Dec 20: 0 contributions</title></rect>
-<rect x="228" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="244" y="130" width="8" height="170" fill="transparent"><title>Dec 21 - Dec 27: 0 contributions</title></rect>
-<rect x="244" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="256" y="130" width="8" height="170" fill="transparent"><title>Dec 28 - Jan 03: 0 contributions</title></rect>
-<rect x="256" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="272" y="130" width="8" height="170" fill="transparent"><title>Jan 04 - Jan 10: 0 contributions</title></rect>
-<rect x="272" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="288" y="130" width="8" height="170" fill="transparent"><title>Jan 11 - Jan 17: 0 contributions</title></rect>
-<rect x="288" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="304" y="130" width="8" height="170" fill="transparent"><title>Jan 18 - Jan 24: 0 contributions</title></rect>
-<rect x="304" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="320" y="130" width="8" height="170" fill="transparent"><title>Jan 25 - Jan 31: 0 contributions</title></rect>
-<rect x="320" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="336" y="130" width="8" height="170" fill="transparent"><title>Feb 01 - Feb 07: 0 contributions</title></rect>
-<rect x="336" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="348" y="130" width="8" height="170" fill="transparent"><title>Feb 08 - Feb 14: 0 contributions</title></rect>
-<rect x="348" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="364" y="130" width="8" height="170" fill="transparent"><title>Feb 15 - Feb 21: 0 contributions</title></rect>
-<rect x="364" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="380" y="130" width="8" height="170" fill="transparent"><title>Feb 22 - Feb 28: 0 contributions</title></rect>
-<rect x="380" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="396" y="130" width="8" height="170" fill="transparent"><title>Mar 01 - Mar 07: 0 contributions</title></rect>
-<rect x="396" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="412" y="130" width="8" height="170" fill="transparent"><title>Mar 08 - Mar 14: 0 contributions</title></rect>
-<rect x="412" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="428" y="130" width="8" height="170" fill="transparent"><title>Mar 15 - Mar 21: 0 contributions</title></rect>
-<rect x="428" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="440" y="130" width="8" height="170" fill="transparent"><title>Mar 22 - Mar 28: 1 contribution</title></rect>
-<rect x="440" y="297" width="8" height="3" fill="url(#l1)"/>
-<rect x="456" y="130" width="8" height="170" fill="transparent"><title>Mar 29 - Apr 04: 0 contributions</title></rect>
-<rect x="456" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="472" y="130" width="8" height="170" fill="transparent"><title>Apr 05 - Apr 11: 0 contributions</title></rect>
-<rect x="472" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="488" y="130" width="8" height="170" fill="transparent"><title>Apr 12 - Apr 18: 0 contributions</title></rect>
-<rect x="488" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="504" y="130" width="8" height="170" fill="transparent"><title>Apr 19 - Apr 25: 3 contributions</title></rect>
-<rect x="504" y="292" width="8" height="8" fill="url(#l1)"/>
-<rect x="520" y="130" width="8" height="170" fill="transparent"><title>Apr 26 - May 02: 4 contributions</title></rect>
-<rect x="520" y="289" width="8" height="11" fill="url(#l1)"/>
-<rect x="536" y="130" width="8" height="170" fill="transparent"><title>May 03 - May 09: 0 contributions</title></rect>
-<rect x="536" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="548" y="130" width="8" height="170" fill="transparent"><title>May 10 - May 16: 9 contributions</title></rect>
-<rect x="548" y="274" width="8" height="26" fill="url(#l1)"/>
-<rect x="564" y="130" width="8" height="170" fill="transparent"><title>May 17 - May 23: 40 contributions</title></rect>
-<rect x="564" y="187" width="8" height="113" fill="#24292f"/>
-<rect x="580" y="130" width="8" height="170" fill="transparent"><title>May 24 - May 30: 7 contributions</title></rect>
-<rect x="580" y="280" width="8" height="20" fill="url(#l1)"/>
-<rect x="596" y="130" width="8" height="170" fill="transparent"><title>May 31 - Jun 06: 11 contributions</title></rect>
-<rect x="596" y="269" width="8" height="31" fill="url(#l1)"/>
-<rect x="612" y="130" width="8" height="170" fill="transparent"><title>Jun 07 - Jun 13: 8 contributions</title></rect>
-<rect x="612" y="277" width="8" height="23" fill="url(#l1)"/>
-<rect x="628" y="130" width="8" height="170" fill="transparent"><title>Jun 14 - Jun 20: 12 contributions</title></rect>
-<rect x="628" y="266" width="8" height="34" fill="url(#l1)"/>
-<rect x="640" y="130" width="8" height="170" fill="transparent"><title>Jun 21 - Jun 27: 10 contributions</title></rect>
-<rect x="640" y="272" width="8" height="28" fill="url(#l1)"/>
-<rect x="656" y="130" width="8" height="170" fill="transparent"><title>Jun 28 - Jul 04: 17 contributions</title></rect>
-<rect x="656" y="252" width="8" height="48" fill="url(#l2)"/>
-<rect x="672" y="130" width="8" height="170" fill="transparent"><title>Jul 05 - Jul 11: 11 contributions</title></rect>
-<rect x="672" y="269" width="8" height="31" fill="url(#l1)"/>
-<rect x="688" y="130" width="8" height="170" fill="transparent"><title>Jul 12 - Jul 18: 0 contributions</title></rect>
-<rect x="688" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="704" y="130" width="8" height="170" fill="transparent"><title>Jul 19 - Jul 25: 0 contributions</title></rect>
-<rect x="704" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="720" y="130" width="8" height="170" fill="transparent"><title>Jul 26 - Aug 01: 2 contributions</title></rect>
-<rect x="720" y="294" width="8" height="6" fill="url(#l1)"/>
-<rect x="732" y="130" width="8" height="170" fill="transparent"><title>Aug 02 - Aug 08: 0 contributions</title></rect>
-<rect x="732" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="748" y="130" width="8" height="170" fill="transparent"><title>Aug 09 - Aug 15: 0 contributions</title></rect>
-<rect x="748" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="764" y="130" width="8" height="170" fill="transparent"><title>Aug 16 - Aug 22: 6 contributions</title></rect>
-<rect x="764" y="283" width="8" height="17" fill="url(#l1)"/>
-<rect x="780" y="130" width="8" height="170" fill="transparent"><title>Aug 23 - Aug 29: 0 contributions</title></rect>
-<rect x="780" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="796" y="130" width="8" height="170" fill="transparent"><title>Aug 30 - Sep 05: 0 contributions</title></rect>
-<rect x="796" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="812" y="130" width="8" height="170" fill="transparent"><title>Sep 06 - Sep 12: 0 contributions</title></rect>
-<rect x="812" y="298" width="8" height="2" fill="url(#l1)"/>
-<rect x="824" y="130" width="8" height="170" fill="transparent"><title>Sep 13 - Sep 19: 14 contributions</title></rect>
-<rect x="824" y="260" width="8" height="40" fill="url(#l2)"/>
-<rect x="840" y="130" width="8" height="170" fill="transparent"><title>Sep 20 - Sep 26: 16 contributions</title></rect>
-<rect x="840" y="255" width="8" height="45" fill="url(#l2)"/>
-<rect x="856" y="130" width="8" height="170" fill="transparent"><title>Sep 27 - Sep 28: 49 contributions</title></rect>
-<rect x="856" y="161" width="8" height="139" fill="#24292f"/>
-<rect x="854" y="159" width="12" height="143" fill="none" stroke="#953800" stroke-width="2"/>
+<rect x="58" y="215" width="814" height="1" fill="url(#l0)"/><text x="50" y="219" text-anchor="end" font-size="10" fill="#24292f" opacity="0.6">20</text>
+<rect x="58" y="130" width="814" height="1" fill="url(#l0)"/><text x="50" y="134" text-anchor="end" font-size="10" fill="#24292f" opacity="0.6">40</text>
+<rect x="60" y="130" width="20" height="170" fill="transparent"><title>Sep 01: 0 contributions</title></rect>
+<rect x="60" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="88" y="130" width="20" height="170" fill="transparent"><title>Sep 02: 0 contributions</title></rect>
+<rect x="88" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="116" y="130" width="20" height="170" fill="transparent"><title>Sep 03: 0 contributions</title></rect>
+<rect x="116" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="144" y="130" width="20" height="170" fill="transparent"><title>Sep 04: 0 contributions</title></rect>
+<rect x="144" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="172" y="130" width="20" height="170" fill="transparent"><title>Sep 05: 0 contributions</title></rect>
+<rect x="172" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="196" y="130" width="20" height="170" fill="transparent"><title>Sep 06: 0 contributions</title></rect>
+<rect x="196" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="224" y="130" width="20" height="170" fill="transparent"><title>Sep 07: 0 contributions</title></rect>
+<rect x="224" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="252" y="130" width="20" height="170" fill="transparent"><title>Sep 08: 0 contributions</title></rect>
+<rect x="252" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="280" y="130" width="20" height="170" fill="transparent"><title>Sep 09: 0 contributions</title></rect>
+<rect x="280" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="304" y="130" width="20" height="170" fill="transparent"><title>Sep 10: 0 contributions</title></rect>
+<rect x="304" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="332" y="130" width="20" height="170" fill="transparent"><title>Sep 11: 0 contributions</title></rect>
+<rect x="332" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="360" y="130" width="20" height="170" fill="transparent"><title>Sep 12: 0 contributions</title></rect>
+<rect x="360" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="388" y="130" width="20" height="170" fill="transparent"><title>Sep 13: 2 contributions</title></rect>
+<rect x="388" y="292" width="20" height="8" fill="url(#l1)"/>
+<rect x="416" y="130" width="20" height="170" fill="transparent"><title>Sep 14: 2 contributions</title></rect>
+<rect x="416" y="292" width="20" height="8" fill="url(#l1)"/>
+<rect x="440" y="130" width="20" height="170" fill="transparent"><title>Sep 15: 0 contributions</title></rect>
+<rect x="440" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="468" y="130" width="20" height="170" fill="transparent"><title>Sep 16: 5 contributions</title></rect>
+<rect x="468" y="279" width="20" height="21" fill="url(#l1)"/>
+<rect x="496" y="130" width="20" height="170" fill="transparent"><title>Sep 17: 4 contributions</title></rect>
+<rect x="496" y="283" width="20" height="17" fill="url(#l1)"/>
+<rect x="524" y="130" width="20" height="170" fill="transparent"><title>Sep 18: 0 contributions</title></rect>
+<rect x="524" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="548" y="130" width="20" height="170" fill="transparent"><title>Sep 19: 1 contribution</title></rect>
+<rect x="548" y="296" width="20" height="4" fill="url(#l1)"/>
+<rect x="576" y="130" width="20" height="170" fill="transparent"><title>Sep 20: 2 contributions</title></rect>
+<rect x="576" y="292" width="20" height="8" fill="url(#l1)"/>
+<rect x="604" y="130" width="20" height="170" fill="transparent"><title>Sep 21: 4 contributions</title></rect>
+<rect x="604" y="283" width="20" height="17" fill="url(#l1)"/>
+<rect x="632" y="130" width="20" height="170" fill="transparent"><title>Sep 22: 1 contribution</title></rect>
+<rect x="632" y="296" width="20" height="4" fill="url(#l1)"/>
+<rect x="660" y="130" width="20" height="170" fill="transparent"><title>Sep 23: 1 contribution</title></rect>
+<rect x="660" y="296" width="20" height="4" fill="url(#l1)"/>
+<rect x="684" y="130" width="20" height="170" fill="transparent"><title>Sep 24: 0 contributions</title></rect>
+<rect x="684" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="712" y="130" width="20" height="170" fill="transparent"><title>Sep 25: 0 contributions</title></rect>
+<rect x="712" y="298" width="20" height="2" fill="url(#l1)"/>
+<rect x="740" y="130" width="20" height="170" fill="transparent"><title>Sep 26: 8 contributions</title></rect>
+<rect x="740" y="266" width="20" height="34" fill="url(#l1)"/>
+<rect x="768" y="130" width="20" height="170" fill="transparent"><title>Sep 27: 39 contributions</title></rect>
+<rect x="768" y="134" width="20" height="166" fill="#24292f"/>
+<rect x="796" y="130" width="20" height="170" fill="transparent"><title>Sep 28: 10 contributions</title></rect>
+<rect x="796" y="258" width="20" height="42" fill="url(#l2)"/>
+<rect x="794" y="256" width="24" height="46" fill="none" stroke="#953800" stroke-width="2"/>
+<rect x="820" y="298" width="20" height="2" fill="url(#l0)"/>
+<rect x="848" y="298" width="20" height="2" fill="url(#l0)"/>
 <rect x="58" y="300" width="814" height="2" fill="#24292f" opacity="0.5"/>
-<text x="58" y="316" font-size="10" fill="#24292f" opacity="0.75">Oct</text>
-<text x="119" y="316" font-size="10" fill="#24292f" opacity="0.75">Nov</text>
-<text x="196" y="316" font-size="10" fill="#24292f" opacity="0.75">Dec</text>
-<text x="258" y="316" font-size="10" fill="#24292f" opacity="0.75">Jan</text>
-<text x="334" y="316" font-size="10" fill="#24292f" opacity="0.75">Feb</text>
-<text x="396" y="316" font-size="10" fill="#24292f" opacity="0.75">Mar</text>
-<text x="457" y="316" font-size="10" fill="#24292f" opacity="0.75">Apr</text>
-<text x="519" y="316" font-size="10" fill="#24292f" opacity="0.75">May</text>
-<text x="596" y="316" font-size="10" fill="#24292f" opacity="0.75">Jun</text>
-<text x="657" y="316" font-size="10" fill="#24292f" opacity="0.75">Jul</text>
-<text x="718" y="316" font-size="10" fill="#24292f" opacity="0.75">Aug</text>
-<text x="795" y="316" font-size="10" fill="#24292f" opacity="0.75">Sep</text>
-<rect x="800" y="324" width="10" height="10" fill="none" stroke="#953800" stroke-width="2"/><text x="816" y="332" font-size="10" fill="#24292f" opacity="0.75">this week</text>
+<text x="72" y="316" text-anchor="middle" font-size="10" fill="#24292f" opacity="0.75">1</text>
+<text x="180" y="316" text-anchor="middle" font-size="10" fill="#24292f" opacity="0.75">5</text>
+<text x="316" y="316" text-anchor="middle" font-size="10" fill="#24292f" opacity="0.75">10</text>
+<text x="451" y="316" text-anchor="middle" font-size="10" fill="#24292f" opacity="0.75">15</text>
+<text x="587" y="316" text-anchor="middle" font-size="10" fill="#24292f" opacity="0.75">20</text>
+<text x="723" y="316" text-anchor="middle" font-size="10" fill="#24292f" opacity="0.75">25</text>
+<text x="858" y="316" text-anchor="middle" font-size="10" fill="#24292f" opacity="0.75">30</text>
+<rect x="822" y="324" width="10" height="10" fill="none" stroke="#953800" stroke-width="2"/><text x="838" y="332" font-size="10" fill="#24292f" opacity="0.75">today</text>
 </svg>

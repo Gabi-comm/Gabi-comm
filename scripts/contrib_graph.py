@@ -1,9 +1,10 @@
-"""Render the weekly contribution graph: graph_dark.svg + graph_light.svg.
+"""Render the contribution graph for the current month: graph_dark.svg + graph_light.svg.
 
-A year of GitHub contributions as one bar per week, in the WakaTime-dashboard
-look of the other cards: stat tiles with a dithered strip, bars shaded with
-1-bit dither levels by how busy the week was, dotted guide lines, tiny month
-labels. The current week is outlined in orange.
+One bar per day of the current month, in the WakaTime-dashboard look of the
+other cards: stat tiles with a dithered strip, bars shaded with 1-bit dither
+levels by how busy the day was, dotted guide lines, day numbers along the
+bottom. Today is outlined in orange; days still to come are faint placeholders.
+It rolls over to the new month on the 1st.
 
 Data is the public contribution calendar (the same one the Pac-Man grid uses;
 no token needed).
@@ -11,8 +12,9 @@ no token needed).
 Usage:
     python scripts/contrib_graph.py
 """
+import calendar
 import sys
-from datetime import datetime, timedelta
+from datetime import date, datetime
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -24,28 +26,36 @@ WIDTH = 900
 TILE_H = 52
 CHART_H = 170
 AXIS_W = 30                # room for the y-axis numbers
-BAR_GAP = 4
+BAR_GAP = 6
 
 
-def week_totals(weeks: list[list[dict]]) -> list[dict]:
-    return [{"start": w[0]["date"], "end": w[-1]["date"], "total": sum(d["count"] for d in w)} for w in weeks]
+def month_days(weeks: list[list[dict]], today: date) -> list[dict]:
+    """Every day of today's month: its count, or None if it hasn't come yet."""
+    counts = {d["date"]: d["count"] for w in weeks for d in w}
+    last = calendar.monthrange(today.year, today.month)[1]
+    days = []
+    for n in range(1, last + 1):
+        d = today.replace(day=n)
+        days.append({"date": d, "count": counts.get(d, 0) if d <= today else None})
+    return days
 
 
-def stats(weeks: list[list[dict]], bars: list[dict]) -> list[tuple[str, str]]:
-    days = [d for w in weeks for d in w]
-    total = sum(d["count"] for d in days)
-    best = max(bars, key=lambda b: b["total"])
-    active = sum(1 for d in days if d["count"])
-    longest = run = 0
-    for d in days:
-        run = run + 1 if d["count"] else 0
-        longest = max(longest, run)
+def stats(days: list[dict], today: date) -> list[tuple[str, str]]:
+    past = [d for d in days if d["count"] is not None]
+    total = sum(d["count"] for d in past)
+    best = max(past, key=lambda d: d["count"])
+    streak = 0
+    for d in reversed(past):  # today counts if you've contributed; otherwise from yesterday
+        if d["count"]:
+            streak += 1
+        elif d["date"] != today:
+            break
     return [
-        (f"{total:,}", "Total"),
-        (str(best["total"]), f"Best Week ({best['start']:%b %d})"),
-        (f"{total / len(bars):.1f}", "Weekly Average"),
-        (str(active), "Active Days"),
-        (f"{longest}d", "Longest Streak"),
+        (f"{total:,}", "This Month"),
+        (str(best["count"]), f"Best Day ({best['date']:%b %d})" if best["count"] else "Best Day"),
+        (f"{total / len(past):.1f}", "Daily Average"),
+        (str(sum(1 for d in past if d["count"])), "Active Days"),
+        (f"{streak}d", "Current Streak"),
     ]
 
 
@@ -57,7 +67,7 @@ def nice_max(v: int) -> int:
     return v
 
 
-def render(theme: dict, weeks: list[list[dict]], bars: list[dict], tiles: list[tuple[str, str]]) -> str:
+def render(theme: dict, days: list[dict], tiles: list[tuple[str, str]], today: date) -> str:
     ink, bg, lit = theme["text"], theme["bg"], theme["key"]
     right = WIDTH - PAD
     out: list[str] = []
@@ -66,7 +76,7 @@ def render(theme: dict, weeks: list[list[dict]], bars: list[dict], tiles: list[t
     # Title and stat tiles.
     out.append(f'<text x="{PAD}" y="{y + 12}" font-size="15" font-weight="bold" fill="{lit}">Contribution Graph</text>'
                f'<text x="{right}" y="{y + 12}" text-anchor="end" font-size="10" fill="{ink}" opacity="0.6">'
-               f'weekly &#183; last year</text>')
+               f'daily &#183; {today:%B %Y}</text>')
     y += 26
     tile_w = (right - PAD) / len(tiles)
     for i, (value, label) in enumerate(tiles):
@@ -77,7 +87,9 @@ def render(theme: dict, weeks: list[list[dict]], bars: list[dict], tiles: list[t
     y += TILE_H + 24
 
     # Chart frame: y axis, dotted guide lines at 0 / half / top.
-    top = nice_max(max(b["total"] for b in bars) or 1)
+    counts = [d["count"] for d in days if d["count"] is not None]
+    peak = max(counts) or 1
+    top = nice_max(peak)
     cx0, cx1 = PAD + AXIS_W, right
     cy0, cy1 = y, y + CHART_H  # top, baseline
     for frac in (0, 0.5, 1):
@@ -86,40 +98,38 @@ def render(theme: dict, weeks: list[list[dict]], bars: list[dict], tiles: list[t
                    f'<text x="{cx0 - 8}" y="{gy + 4}" text-anchor="end" font-size="10" fill="{ink}" '
                    f'opacity="0.6">{round(top * frac)}</text>')
 
-    # Bars: pitch rounded to 4px so the dither patterns line up bar to bar.
-    pitch = (cx1 - cx0) / len(bars)
+    # One bar per day; x and width on a 4px grid so the dither patterns line up.
+    pitch = (cx1 - cx0) / len(days)
     bar_w = max(4, int((pitch - BAR_GAP) // 4 * 4))
-    today = datetime.now(TZ).date()
-    peak = max(b["total"] for b in bars) or 1
-    for i, b in enumerate(bars):
-        x = round((cx0 + i * pitch) / 4) * 4
-        h = round(CHART_H * b["total"] / top)
-        share = b["total"] / peak
+    for i, d in enumerate(days):
+        x = round((cx0 + i * pitch + (pitch - bar_w) / 2) / 4) * 4
+        if d["count"] is None:  # still to come this month
+            out.append(f'<rect x="{x}" y="{cy1 - 2}" width="{bar_w}" height="2" fill="url(#l0)"/>')
+            continue
+        h = round(CHART_H * d["count"] / top)
+        share = d["count"] / peak
         fill = ink if share >= 0.75 else "url(#l3)" if share >= 0.5 else "url(#l2)" if share >= 0.25 else "url(#l1)"
-        tip = f'{b["start"]:%b %d} - {b["end"]:%b %d}: {b["total"]} contribution{"s" * (b["total"] != 1)}'
+        tip = f'{d["date"]:%b %d}: {d["count"]} contribution{"s" * (d["count"] != 1)}'
         out.append(f'<rect x="{x}" y="{cy0}" width="{bar_w}" height="{CHART_H}" fill="transparent"><title>{tip}</title></rect>')
-        if h:
-            out.append(f'<rect x="{x}" y="{cy1 - h}" width="{bar_w}" height="{h}" fill="{fill}"/>')
-        else:
-            out.append(f'<rect x="{x}" y="{cy1 - 2}" width="{bar_w}" height="2" fill="url(#l1)"/>')
-        if b["start"] <= today <= b["start"] + timedelta(days=6):  # this week: orange outline
+        out.append(f'<rect x="{x}" y="{cy1 - max(h, 2)}" width="{bar_w}" height="{max(h, 2)}" '
+                   f'fill="{fill if h else "url(#l1)"}"/>')
+        if d["date"] == today:
             out.append(f'<rect x="{x - 2}" y="{cy1 - max(h, 2) - 2}" width="{bar_w + 4}" height="{max(h, 2) + 4}" '
                        f'fill="none" stroke="{lit}" stroke-width="2"/>')
 
-    # Month labels under the first week of each month; baseline rule.
+    # Baseline and day numbers (1, every 5th, and the last day).
     out.append(f'<rect x="{cx0}" y="{cy1}" width="{cx1 - cx0}" height="2" fill="{ink}" opacity="0.5"/>')
-    seen = set()
-    for i, b in enumerate(bars):
-        first = next((d for d in (b["start"] + timedelta(days=k) for k in range(7)) if d.day == 1), None)
-        if first and first <= b["end"] and first.month not in seen:
-            seen.add(first.month)
-            out.append(f'<text x="{round(cx0 + i * pitch)}" y="{cy1 + 16}" font-size="10" fill="{ink}" '
-                       f'opacity="0.75">{first:%b}</text>')
+    for i, d in enumerate(days):
+        n = d["date"].day
+        if n == 1 or n % 5 == 0 or n == len(days):
+            out.append(f'<text x="{round(cx0 + (i + 0.5) * pitch)}" y="{cy1 + 16}" text-anchor="middle" '
+                       f'font-size="10" fill="{lit if d["date"] == today else ink}" '
+                       f'opacity="{1 if d["date"] == today else 0.75}">{n}</text>')
 
     # Legend.
     ly = cy1 + 34
-    out.append(f'<rect x="{right - 72}" y="{ly - 10}" width="10" height="10" fill="none" stroke="{lit}" stroke-width="2"/>'
-               f'<text x="{right - 56}" y="{ly - 2}" font-size="10" fill="{ink}" opacity="0.75">this week</text>')
+    out.append(f'<rect x="{right - 50}" y="{ly - 10}" width="10" height="10" fill="none" stroke="{lit}" stroke-width="2"/>'
+               f'<text x="{right - 34}" y="{ly - 2}" font-size="10" fill="{ink}" opacity="0.75">today</text>')
     height = ly + PAD - 10
 
     svg = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" viewBox="0 0 {WIDTH} {height}" '
@@ -136,12 +146,13 @@ def main() -> None:
     except Exception as err:  # keep yesterday's graph rather than fail the workflow
         print("calendar fetch failed, leaving the graph as it is:", err)
         sys.exit(0)
-    bars = week_totals(weeks)
-    tiles = stats(weeks, bars)
-    print(f"{len(bars)} weeks, {bars[0]['start']} to {bars[-1]['end']}; tiles: {tiles}")
+    today = datetime.now(TZ).date()
+    days = month_days(weeks, today)
+    tiles = stats(days, today)
+    print(f"{today:%B %Y}: {sum(d['count'] or 0 for d in days)} contributions; tiles: {tiles}")
     for name, theme in THEMES.items():
         path = ROOT / f"graph_{name}.svg"
-        path.write_text(render(theme, weeks, bars, tiles), encoding="utf-8")
+        path.write_text(render(theme, days, tiles, today), encoding="utf-8")
         print("wrote", path.name, f"({path.stat().st_size // 1024} KB)")
 
 

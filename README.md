@@ -10,7 +10,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="graph_dark.svg">
-  <img alt="Weekly GitHub contributions over the last year" src="graph_light.svg">
+  <img alt="Daily GitHub contributions for the current month" src="graph_light.svg">
 </picture>
 
 <picture>
