@@ -116,8 +116,11 @@ def render(theme: dict, days: list[dict], tiles: list[tuple[str, str]], today: d
         out.append(f'<rect x="{x}" y="{cy1 - max(h, 2)}" width="{bar_w}" height="{max(h, 2)}" '
                    f'fill="{fill if h else "url(#o1)"}"/>')
         if d["date"] == today:  # a pixel arrow pointing down at today's bar, "Today" above it
-            ax, ay = x + bar_w / 2, cy1 - max(h, 2) - 12
-            out.append(f'<g transform="translate({ax},{ay})">{pixel_art(ARROW, ink, 2)}</g>'
+            ax, ay = x + bar_w / 2, cy1 - max(h, 2) - 14  # room for the arrow to bob down
+            # The arrow bobs down toward the bar and back in 2px steps, retro style.
+            bob = ('<animateTransform attributeName="transform" type="translate" '
+                   'values="0,0;0,2;0,4;0,2" calcMode="discrete" dur="0.8s" repeatCount="indefinite"/>')
+            out.append(f'<g transform="translate({ax},{ay})"><g>{bob}{pixel_art(ARROW, ink, 2)}</g></g>'
                        f'<text x="{ax}" y="{ay - 11}" text-anchor="middle" font-size="11" font-weight="bold" '
                        f'fill="{ink}">Today</text>')
 
