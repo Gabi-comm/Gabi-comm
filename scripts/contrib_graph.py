@@ -2,8 +2,9 @@
 
 One bar per day of the current month, in the WakaTime-dashboard look of the
 other cards: stat tiles with a dithered strip, bars shaded with 1-bit dither
-levels by how busy the day was, dotted guide lines, day numbers along the
-bottom. Today is outlined in orange; days still to come are faint placeholders.
+levels (in orange) by how busy the day was, dotted guide lines, day numbers
+along the bottom. A pixel arrow and "Today" mark today's bar; days still to
+come are faint placeholders.
 It rolls over to the new month on the 1st.
 
 Data is the public contribution calendar (the same one the Pac-Man grid uses;
@@ -18,7 +19,7 @@ from datetime import date, datetime
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-from pacman_grid import TZ, fetch_public_calendar, patterns
+from pacman_grid import TZ, fetch_public_calendar, patterns, pixel_art
 from profile_card import PAD, THEMES
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,6 +28,7 @@ TILE_H = 52
 CHART_H = 170
 AXIS_W = 30                # room for the y-axis numbers
 BAR_GAP = 6
+ARROW = ["..###..", "..###..", "..###..", "#######", ".#####.", "..###..", "...#..."]
 
 
 def month_days(weeks: list[list[dict]], today: date) -> list[dict]:
@@ -84,7 +86,7 @@ def render(theme: dict, days: list[dict], tiles: list[tuple[str, str]], today: d
         out.append(f'<rect x="{x:.0f}" y="{y + 4}" width="8" height="{TILE_H - 16}" fill="url(#l1)"/>'
                    f'<text x="{x + 16:.0f}" y="{y + 26}" font-size="24" fill="{ink}">{escape(value)}</text>'
                    f'<text x="{x + 16:.0f}" y="{y + 40}" font-size="11" fill="{ink}" opacity="0.8">{escape(label)}</text>')
-    y += TILE_H + 24
+    y += TILE_H + 44  # headroom for the "Today" marker over a tall bar
 
     # Chart frame: y axis, dotted guide lines at 0 / half / top.
     counts = [d["count"] for d in days if d["count"] is not None]
@@ -108,14 +110,16 @@ def render(theme: dict, days: list[dict], tiles: list[tuple[str, str]], today: d
             continue
         h = round(CHART_H * d["count"] / top)
         share = d["count"] / peak
-        fill = ink if share >= 0.75 else "url(#l3)" if share >= 0.5 else "url(#l2)" if share >= 0.25 else "url(#l1)"
+        fill = lit if share >= 0.75 else "url(#o3)" if share >= 0.5 else "url(#o2)" if share >= 0.25 else "url(#o1)"
         tip = f'{d["date"]:%b %d}: {d["count"]} contribution{"s" * (d["count"] != 1)}'
         out.append(f'<rect x="{x}" y="{cy0}" width="{bar_w}" height="{CHART_H}" fill="transparent"><title>{tip}</title></rect>')
         out.append(f'<rect x="{x}" y="{cy1 - max(h, 2)}" width="{bar_w}" height="{max(h, 2)}" '
-                   f'fill="{fill if h else "url(#l1)"}"/>')
-        if d["date"] == today:
-            out.append(f'<rect x="{x - 2}" y="{cy1 - max(h, 2) - 2}" width="{bar_w + 4}" height="{max(h, 2) + 4}" '
-                       f'fill="none" stroke="{lit}" stroke-width="2"/>')
+                   f'fill="{fill if h else "url(#o1)"}"/>')
+        if d["date"] == today:  # a pixel arrow pointing down at today's bar, "Today" above it
+            ax, ay = x + bar_w / 2, cy1 - max(h, 2) - 12
+            out.append(f'<g transform="translate({ax},{ay})">{pixel_art(ARROW, ink, 2)}</g>'
+                       f'<text x="{ax}" y="{ay - 11}" text-anchor="middle" font-size="11" font-weight="bold" '
+                       f'fill="{ink}">Today</text>')
 
     # Baseline and day numbers (1, every 5th, and the last day).
     out.append(f'<rect x="{cx0}" y="{cy1}" width="{cx1 - cx0}" height="2" fill="{ink}" opacity="0.5"/>')
@@ -126,15 +130,13 @@ def render(theme: dict, days: list[dict], tiles: list[tuple[str, str]], today: d
                        f'font-size="10" fill="{lit if d["date"] == today else ink}" '
                        f'opacity="{1 if d["date"] == today else 0.75}">{n}</text>')
 
-    # Legend.
-    ly = cy1 + 34
-    out.append(f'<rect x="{right - 50}" y="{ly - 10}" width="10" height="10" fill="none" stroke="{lit}" stroke-width="2"/>'
-               f'<text x="{right - 34}" y="{ly - 2}" font-size="10" fill="{ink}" opacity="0.75">today</text>')
-    height = ly + PAD - 10
+    height = cy1 + 24 + PAD
+    # Grey dither patterns (l0-l3) for guides and placeholders; orange copies (o0-o3) for the bars.
+    orange = patterns(lit).replace('id="l', 'id="o')
 
     svg = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" viewBox="0 0 {WIDTH} {height}" '
            f'shape-rendering="crispEdges" font-family="Consolas, \'Courier New\', monospace">',
-           f"<defs>{patterns(ink)}</defs>",
+           f"<defs>{patterns(ink)}{orange}</defs>",
            f'<rect width="{WIDTH}" height="{height}" rx="15" fill="{bg}"/>',
            *out, "</svg>"]
     return "\n".join(svg) + "\n"
