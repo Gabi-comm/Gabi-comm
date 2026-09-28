@@ -44,6 +44,7 @@ jobs:
           python scripts/profile_card.py
           python scripts/pacman_grid.py
           python scripts/activity.py
+          python scripts/contrib_graph.py
 
       - name: Commit if changed
         env:
@@ -52,7 +53,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          CARDS="dark_mode.svg light_mode.svg pacman_dark.svg pacman_light.svg activity_dark.svg activity_light.svg"
+          CARDS="dark_mode.svg light_mode.svg pacman_dark.svg pacman_light.svg activity_dark.svg activity_light.svg graph_dark.svg graph_light.svg"
           # If main moved while we rendered (a push, or the WakaTime workflow),
           # don't try to merge generated SVGs: start again from the new main,
           # re-render, and retry.
@@ -72,6 +73,7 @@ jobs:
             python scripts/profile_card.py
             python scripts/pacman_grid.py
             python scripts/activity.py
+            python scripts/contrib_graph.py
           done
           echo "Could not push after 3 attempts."
           exit 1

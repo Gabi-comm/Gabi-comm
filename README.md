@@ -9,6 +9,11 @@
 </picture>
 
 <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="graph_dark.svg">
+  <img alt="Weekly GitHub contributions over the last year, with a 4-week moving average" src="graph_light.svg">
+</picture>
+
+<picture>
   <source media="(prefers-color-scheme: dark)" srcset="activity_dark.svg">
   <img alt="Contribution activity: commits per repository and new repositories for the last few months, with Mario climbing the timeline" src="activity_light.svg">
 </picture>

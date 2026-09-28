@@ -7,3 +7,5 @@ pacman_dark.svg -merge linguist-generated
 pacman_light.svg -merge linguist-generated
 activity_dark.svg -merge linguist-generated
 activity_light.svg -merge linguist-generated
+graph_dark.svg -merge linguist-generated
+graph_light.svg -merge linguist-generated
